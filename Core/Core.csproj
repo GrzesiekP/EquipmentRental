@@ -8,6 +8,16 @@
       <PackageReference Include="EventStore.Client" Version="21.2.1" />
       <PackageReference Include="EventStore.Client.Grpc.Streams" Version="21.2.0" />
       <PackageReference Include="MediatR" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="Weasel.Core" Version="1.3.0" />
+      <PackageReference Include="Weasel.Postgresql" Version="1.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Marten, Version=4.3.1.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\..\..\Users\GPawlowski\.nuget\packages\marten\4.3.1\lib\net5.0\Marten.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

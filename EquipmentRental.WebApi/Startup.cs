@@ -26,7 +26,7 @@ namespace EquipmentRental.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var eventStoreConfig = Configuration.GetSection("EventStore").Get<EventStoreConfig>();
+            var martenConfig = Configuration.GetSection("EventStore").Get<MartenConfig>();
             
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -38,11 +38,12 @@ namespace EquipmentRental.WebApi
 
             services.AddSingleton(c =>
             {
-                var cs = eventStoreConfig.ConnectionString;
+                var cs = martenConfig.ConnectionString;
                 return new EventStoreClient(
                         EventStoreClientSettings.Create(cs));
             });
-            services.AddScoped(typeof(IEventStoreRepository<Order>), typeof(OrderRepository));
+            services.AddMarten(martenConfig);
+            services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

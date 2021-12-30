@@ -1,17 +1,16 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Core;
-using EventStore.Client;
+using Marten;
 
 namespace Orders
 {
-    public class OrderRepository : IEventStoreRepository<Order>
+    public class OrderRepository : IMartenEventStoreRepository<Order>
     {
-        private readonly EventStoreClient _eventStoreClient;
+        private readonly IDocumentSession _documentSession;
 
-        public OrderRepository(EventStoreClient eventStoreClient)
+        public OrderRepository(IDocumentSession documentSession)
         {
-            _eventStoreClient = eventStoreClient;
+            _documentSession = documentSession;
         }
 
         public async Task Add(Order order)
@@ -22,15 +21,10 @@ namespace Orders
         private async Task Store(Order order)
         {
             var events = order.DequeueUncommittedEvents();
+            _documentSession.Events.Append(order.Id, events);
 
-            var eventData = events.Select(EventStoreSerializer.ToJsonEventData);
-
-            var streamName = StreamNameMapper.ToStreamId<Order>(order.Id);
-            
-            await _eventStoreClient.AppendToStreamAsync(
-                streamName,
-                StreamState.Any,
-                eventData);
+            await _documentSession.SaveChangesAsync();
+            // publish events
         }
     }
 }

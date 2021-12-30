@@ -8,9 +8,9 @@ namespace Orders.CommandHandlers
 {
     public class SubmitOrderCommandHandler : ICommandHandler<SubmitOrder>
     {
-        private readonly IEventStoreRepository<Order> _orderEventStoreRepository;
+        private readonly IMartenEventStoreRepository<Order> _orderEventStoreRepository;
 
-        public SubmitOrderCommandHandler(IEventStoreRepository<Order> orderEventStoreRepository)
+        public SubmitOrderCommandHandler(IMartenEventStoreRepository<Order> orderEventStoreRepository)
         {
             _orderEventStoreRepository = orderEventStoreRepository;
         }
