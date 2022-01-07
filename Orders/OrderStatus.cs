@@ -2,6 +2,7 @@
 {
     public enum OrderStatus
     {
-        Submitted = 1
+        Submitted = 1,
+        WaitingForApproval = 2
     }
 }
