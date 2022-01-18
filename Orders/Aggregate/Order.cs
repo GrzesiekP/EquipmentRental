@@ -15,16 +15,8 @@ namespace Orders.Aggregate
         public Order()
         {
         }
-        
-        public void Submit(SubmitOrder submitOrder)
-        {
-            var orderSubmittedEvent = new OrderSubmitted(submitOrder.OrderId);
-            
-            PublishEvent(orderSubmittedEvent);
-            Apply(orderSubmittedEvent);
-        }
 
-        public static Order Initialize(Guid orderId)
+        public static Order Submit(Guid orderId)
         {
             var order = new Order(orderId);
             return order;
@@ -32,10 +24,10 @@ namespace Orders.Aggregate
 
         private Order(Guid id)
         {
-            var orderInitialized = new OrderInitialized(id);
+            var orderSubmitted = new OrderSubmitted(id);
             
-            PublishEvent(orderInitialized);
-            Apply(orderInitialized);
+            PublishEvent(orderSubmitted);
+            Apply(orderSubmitted);
         }
 
         public void RequestApproval(RequestApproval requestApproval)
@@ -74,23 +66,21 @@ namespace Orders.Aggregate
         }
 
         #region Apply
-
-        private void Apply(OrderInitialized orderInitialized)
-        {
-            Id = orderInitialized.OrderId;
-            
-            Console.WriteLine($"{nameof(OrderInitialized)}. Order:{Id}");
-        }
-        
         private void Apply(OrderSubmitted orderSubmitted)
         {
+            Version++;
+
+            Id = orderSubmitted.OrderId;
             Status = OrderStatus.Submitted;
             
+            // First time aggregate is not saved, so the 2nd time is the correct apply.
             Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
         }
         
         private void Apply(ApprovalRequested approvalRequested)
         {
+            Version++;
+            
             Status = OrderStatus.WaitingForApproval;
             
             Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
@@ -98,6 +88,8 @@ namespace Orders.Aggregate
         
         private void Apply(RequestApproved requestApproved)
         {
+            Version++;
+            
             Status = OrderStatus.Approved;
             
             Console.WriteLine($"{nameof(RequestApproved)}. Order:{Id}");

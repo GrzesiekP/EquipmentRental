@@ -19,9 +19,10 @@ namespace Orders.CommandHandlers
 
         public async Task<Unit> Handle(SubmitOrder command, CancellationToken cancellationToken)
         {
-            var order = Order.Initialize(command.OrderId);
-            order.Submit(command);
+            // On init order submitted is applied and enqueued
+            var order = Order.Submit(command.OrderId);
             
+            // on add enqueued events are publsihed
             await _orderEventStoreRepository.Add(order);
             
             return Unit.Value;
