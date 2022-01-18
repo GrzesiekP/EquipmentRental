@@ -1,7 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Core;
+using Core.Domain;
+using Core.EventStore;
 using MediatR;
+using Orders.Aggregate;
 using Orders.Commands;
 
 namespace Orders.CommandHandlers
@@ -17,8 +19,9 @@ namespace Orders.CommandHandlers
 
         public async Task<Unit> Handle(SubmitOrder command, CancellationToken cancellationToken)
         {
-            var order = Order.Submit(command.OrderId);
-
+            var order = Order.Initialize(command.OrderId);
+            order.Submit(command);
+            
             await _orderEventStoreRepository.Add(order);
             
             return Unit.Value;

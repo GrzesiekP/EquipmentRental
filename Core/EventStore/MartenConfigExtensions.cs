@@ -1,21 +1,19 @@
 ﻿#nullable enable
 using System;
 using System.Threading;
+using Core.Config;
 using Marten;
 using Marten.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Weasel.Core;
 using Weasel.Postgresql;
 
-namespace Core
+namespace Core.EventStore
 {
     public static class MartenConfigExtensions
     {
-        private const string DefaultConfigKey = "EventStore";
-
         public static IServiceCollection AddMarten(this IServiceCollection services, MartenConfig martenConfig,
-            Action<StoreOptions>? configureOptions = null, string configKey = DefaultConfigKey)
+            Action<StoreOptions>? configureOptions = null)
         {
             services
                 .AddScoped<IIdGenerator, MartenIdGenerator>();

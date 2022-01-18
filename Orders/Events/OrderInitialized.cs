@@ -1,11 +1,11 @@
 ﻿using System;
 using Core.Domain;
 
-namespace Orders.Commands
+namespace Orders.Events
 {
-    public class ApproveRequest : ICommand
+    public class OrderInitialized : IEvent
     {
-        public ApproveRequest(Guid orderId)
+        public OrderInitialized(Guid orderId)
         {
             OrderId = orderId;
         }

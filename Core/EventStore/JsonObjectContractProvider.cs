@@ -6,7 +6,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Core
+namespace Core.EventStore
 {
     public class JsonObjectContractProvider
     {

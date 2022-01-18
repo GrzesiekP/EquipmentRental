@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Core;
+using Core.Domain;
 using MediatR;
 using Orders.Commands;
 using Orders.Events;

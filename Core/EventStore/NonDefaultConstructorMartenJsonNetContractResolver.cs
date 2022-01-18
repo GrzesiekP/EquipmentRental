@@ -3,7 +3,7 @@ using Marten;
 using Marten.Services.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Core
+namespace Core.EventStore
 {
     public class NonDefaultConstructorMartenJsonNetContractResolver : JsonNetContractResolver
     {

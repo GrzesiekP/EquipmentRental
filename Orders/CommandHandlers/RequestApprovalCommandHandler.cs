@@ -1,7 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Core;
+using Core.Domain;
+using Core.EventStore;
 using MediatR;
+using Orders.Aggregate;
 using Orders.Commands;
 
 namespace Orders.CommandHandlers

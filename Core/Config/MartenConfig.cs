@@ -1,6 +1,6 @@
 ﻿using Marten.Events.Daemon.Resiliency;
 
-namespace Core
+namespace Core.Config
 {
     public class MartenConfig
     {
@@ -11,7 +11,7 @@ namespace Core
         public string WriteModelSchema { get; set; } = DefaultSchema;
         public string ReadModelSchema { get; set; } = DefaultSchema;
 
-        public bool ShouldRecreateDatabase { get; set; } = false;
+        public bool ShouldRecreateDatabase { get; set; }
 
         public DaemonMode DaemonMode { get; set; } = DaemonMode.Disabled;
     }

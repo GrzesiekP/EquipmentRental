@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Core.Domain;
 
-namespace Core
+namespace Core.EventStore
 {
     public interface IMartenEventStoreRepository<T> where T : IAggregate
     {

@@ -1,6 +1,6 @@
-using System.Collections.Specialized;
-using System.Reflection;
-using Core;
+using Core.Config;
+using Core.Domain;
+using Core.EventStore;
 using EventStore.Client;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Orders;
+using Orders.Aggregate;
 using Orders.CommandHandlers;
+using Orders.EventStore;
 
 namespace EquipmentRental.WebApi
 {

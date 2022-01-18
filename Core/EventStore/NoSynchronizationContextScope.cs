@@ -2,7 +2,7 @@
 using System;
 using System.Threading;
 
-namespace Core
+namespace Core.EventStore
 {
     public class NoSynchronizationContextScope
     {
@@ -13,13 +13,13 @@ namespace Core
             return new Disposable(context);
         }
 
-        public struct Disposable: IDisposable
+        public struct Disposable : IDisposable
         {
             private readonly SynchronizationContext? _synchronizationContext;
 
             public Disposable(SynchronizationContext? synchronizationContext)
             {
-                this._synchronizationContext = synchronizationContext;
+                _synchronizationContext = synchronizationContext;
             }
 
             public void Dispose() =>
