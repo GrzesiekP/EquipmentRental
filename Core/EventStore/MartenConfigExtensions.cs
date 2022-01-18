@@ -12,7 +12,7 @@ namespace Core.EventStore
 {
     public static class MartenConfigExtensions
     {
-        public static IServiceCollection AddMarten(this IServiceCollection services, MartenConfig martenConfig,
+        public static void AddMarten(this IServiceCollection services, MartenConfig martenConfig,
             Action<StoreOptions>? configureOptions = null)
         {
             services
@@ -23,8 +23,6 @@ namespace Core.EventStore
                 .InitializeStore();
 
             SetupSchema(documentStore, martenConfig, 1);
-
-            return services;
         }
         
         private static void SetupSchema(IDocumentStore documentStore, MartenConfig martenConfig, int retryLeft = 1)
