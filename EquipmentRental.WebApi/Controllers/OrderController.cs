@@ -27,5 +27,15 @@ namespace EquipmentRental.WebApi.Controllers
 
             return Ok(orderId);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> ApproveRequest([FromBody] Guid orderId)
+        {
+            var command = new ApproveRequest(orderId);
+
+            await _mediator.Send(command);
+
+            return Accepted();
+        }
     }
 }

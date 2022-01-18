@@ -6,20 +6,20 @@ using Orders.Commands;
 
 namespace Orders.CommandHandlers
 {
-    public class RequestApprovalCommandHandler : ICommandHandler<RequestApproval>
+    public class ApproveRequestCommandHandler : ICommandHandler<ApproveRequest>
     {
         private readonly IMartenEventStoreRepository<Order> _orderEventStoreRepository;
 
-        public RequestApprovalCommandHandler(IMartenEventStoreRepository<Order> orderEventStoreRepository)
+        public ApproveRequestCommandHandler(IMartenEventStoreRepository<Order> orderEventStoreRepository)
         {
             _orderEventStoreRepository = orderEventStoreRepository;
         }
-        
-        public async Task<Unit> Handle(RequestApproval command, CancellationToken cancellationToken)
+
+        public async Task<Unit> Handle(ApproveRequest command, CancellationToken cancellationToken)
         {
             var order = await _orderEventStoreRepository.Find(command.OrderId);
 
-            order.RequestApproval(command);
+            order.ApproveRequest(command);
 
             await _orderEventStoreRepository.Update(order);
             

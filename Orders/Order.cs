@@ -20,16 +20,6 @@ namespace Orders
             var order = new Order(orderId);
             return order;
         }
-
-        public void RequestApproval(RequestApproval requestApproval)
-        {
-            Console.WriteLine($"Notified about order {requestApproval.OrderId}");
-            
-            var approvalRequested = new ApprovalRequested(requestApproval.OrderId);
-
-            Enqueue(approvalRequested);
-            Apply(approvalRequested);
-        }
         
         private Order(Guid id)
         {
@@ -39,20 +29,64 @@ namespace Orders
             Apply(orderSubmittedEvent);
         }
 
+        public void RequestApproval(RequestApproval requestApproval)
+        {
+            if (Status != OrderStatus.Submitted)
+            {
+                throw new Exception(
+                    $"Cannot request for approval for OrderId:{requestApproval.OrderId}, " +
+                    $"because it is in status {Status}");
+            }
+            
+            var approvalRequested = new ApprovalRequested(requestApproval.OrderId);
+
+            Enqueue(approvalRequested);
+            Apply(approvalRequested);
+        }
+
+        public void ApproveRequest(ApproveRequest approveRequest)
+        {
+            if (Status != OrderStatus.WaitingForApproval)
+            {
+                throw new Exception(
+                    $"Cannot approved order OrderId:{approveRequest.OrderId}, " +
+                    $"because it is in status {Status}");
+            }
+            
+            var requestApproved = new RequestApproved(approveRequest.OrderId);
+            
+            Enqueue(requestApproved);
+            Apply(requestApproved);
+        }
+
         private void PublishEvent(IEvent eventToPublish)
         {
             Enqueue(eventToPublish);
         }
 
+        #region Apply
+        
         private void Apply(OrderSubmitted orderSubmitted)
         {
             Id = orderSubmitted.OrderId;
             Status = OrderStatus.Submitted;
+            
+            Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
         }
         
         private void Apply(ApprovalRequested approvalRequested)
         {
             Status = OrderStatus.WaitingForApproval;
+            
+            Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
         }
+        
+        private void Apply(RequestApproved requestApproved)
+        {
+            Status = OrderStatus.Approved;
+            
+            Console.WriteLine($"{nameof(RequestApproved)}. Order:{Id}");
+        }
+        #endregion
     }
 }
