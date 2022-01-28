@@ -1,5 +1,5 @@
 using Core.Config;
-using Core.Domain;
+using Core.Domain.Aggregates;
 using Core.EventStore;
 using EventStore.Client;
 using MediatR;
@@ -9,9 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Orders;
 using Orders.Aggregate;
 using Orders.CommandHandlers;
+using Orders.Config;
 using Orders.EventStore;
 
 namespace EquipmentRental.WebApi
@@ -44,7 +44,10 @@ namespace EquipmentRental.WebApi
                 return new EventStoreClient(
                         EventStoreClientSettings.Create(cs));
             });
-            services.AddMarten(martenConfig);
+            services.AddMarten(martenConfig, opt =>
+            {
+                opt.ConfigureProjections();
+            });
             services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
         }
 

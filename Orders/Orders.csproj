@@ -14,4 +14,8 @@
       <PackageReference Include="Marten" Version="4.3.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Queries\Models" />
+    </ItemGroup>
+
 </Project>

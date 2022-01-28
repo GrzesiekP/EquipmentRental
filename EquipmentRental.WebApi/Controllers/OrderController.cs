@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Commands;
+using Orders.Queries;
 
 namespace EquipmentRental.WebApi.Controllers
 {
@@ -15,6 +16,14 @@ namespace EquipmentRental.WebApi.Controllers
         public OrderController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrders()
+        {
+            var result = await _mediator.Send(new GetOrders());
+
+            return Ok(result);
         }
 
         [HttpPost]
