@@ -1,5 +1,5 @@
 ﻿using System;
-using Core.Domain;
+using Core.Domain.Commands;
 
 namespace Orders.Commands
 {

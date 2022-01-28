@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Domain.Events;
 
-namespace Core.Domain
+namespace Core.Domain.Aggregates
 {
     public abstract class Aggregate<T>: IAggregate<T> where T : notnull
     {

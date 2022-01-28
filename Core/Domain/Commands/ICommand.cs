@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Core.Domain
+namespace Core.Domain.Commands
 {
     public interface ICommand : IRequest
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Domain;
+using Core.Domain.Commands;
 using MediatR;
 using Orders.Commands;
 

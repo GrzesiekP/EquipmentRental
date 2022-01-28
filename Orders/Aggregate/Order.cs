@@ -1,5 +1,6 @@
 ﻿using System;
-using Core.Domain;
+using Core.Domain.Aggregates;
+using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;

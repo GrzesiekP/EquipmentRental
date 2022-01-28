@@ -1,5 +1,5 @@
 ﻿using System;
-using Core.Domain;
+using Core.Domain.Events;
 
 namespace Orders.Events
 {

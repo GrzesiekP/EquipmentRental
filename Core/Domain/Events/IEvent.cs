@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Core.Domain
+namespace Core.Domain.Events
 {
     public interface IEvent : INotification
     {

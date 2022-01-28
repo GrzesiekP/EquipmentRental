@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Core.Domain;
+using Core.Domain.Aggregates;
 
 namespace Core.EventStore
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.Domain
+namespace Core.Domain.Aggregates
 {
     public interface IAggregate<out T>
     {
