@@ -4,12 +4,14 @@ using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
+using Orders.ValueObjects;
 
 namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
         public OrderStatus Status { get; private set; }
+        public OrderData OrderData { get; private set; }
 
         // Required for event store
         // ReSharper disable once UnusedMember.Global
@@ -17,15 +19,15 @@ namespace Orders.Aggregate
         {
         }
 
-        public static Order Submit(Guid orderId)
+        public static Order Submit(Guid orderId, OrderData orderData)
         {
-            var order = new Order(orderId);
+            var order = new Order(orderId, orderData);
             return order;
         }
 
-        private Order(Guid id)
+        private Order(Guid id, OrderData orderData)
         {
-            var orderSubmitted = new OrderSubmitted(id);
+            var orderSubmitted = new OrderSubmitted(id, orderData);
             
             PublishEvent(orderSubmitted);
             Apply(orderSubmitted);
@@ -73,6 +75,7 @@ namespace Orders.Aggregate
 
             Id = orderSubmitted.OrderId;
             Status = OrderStatus.Submitted;
+            OrderData = orderSubmitted.OrderData;
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
             Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");

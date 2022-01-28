@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Commands;
 using Orders.Queries;
+using Orders.ValueObjects;
 
 namespace EquipmentRental.WebApi.Controllers
 {
@@ -27,11 +28,11 @@ namespace EquipmentRental.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitOrder()
+        public async Task<IActionResult> SubmitOrder([FromBody] OrderData orderData)
         {
             var orderId = Guid.NewGuid();
 
-            var command = new SubmitOrder(orderId);
+            var command = new SubmitOrder(orderId, orderData);
             await _mediator.Send(command);
 
             return Ok(orderId);
