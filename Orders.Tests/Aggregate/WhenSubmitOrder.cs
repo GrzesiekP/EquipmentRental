@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,20 +12,6 @@ namespace Orders.Tests.Aggregate;
 public class WhenSubmitOrder : AggregateTestsBase
 {
     private OrderSubmitted? _orderSubmitted;
-
-    protected override void Given()
-    {
-        base.Given();
-
-        OrderData = new OrderData
-        {
-            Equipment = new List<EquipmentItem>
-            {
-                new() { EquipmentTypeCode = "TYPE_1", RentalPrice = 15 },
-                new() { EquipmentTypeCode = "TYPE_2", RentalPrice = 60 }
-            }
-        };
-    }
 
     protected override void When()
     {
@@ -42,7 +29,7 @@ public class WhenSubmitOrder : AggregateTestsBase
     [TestMethod]
     public void ThenOrderDataIsPopulated()
     {
-        CollectionAssert.AreEquivalent(OrderData.Equipment, Order.OrderData.Equipment);
+        CollectionAssert.AreEquivalent(OrderData.EquipmentItems, Order.OrderData.EquipmentItems);
     }
     
     [TestMethod]

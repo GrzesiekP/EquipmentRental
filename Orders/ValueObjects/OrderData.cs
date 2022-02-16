@@ -1,15 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Core.Extensions;
 
 namespace Orders.ValueObjects
 {
-    public class OrderData
+    public record OrderData
     {
-        public List<EquipmentItem> Equipment { get; set; }
+        public OrderData(List<EquipmentItem> equipmentItems, DateTime rentalDate, DateTime returnDate, Guid rentingUserId)
+        {
+            EquipmentItems = equipmentItems.AssertNotNullOrEmpty(nameof(equipmentItems));
+            if (rentalDate > returnDate)
+            {
+                throw new ArgumentException(
+                    $"Rental date {rentalDate.ToShortDateString()} cannot be after return date {returnDate.ToShortDateString()}");
+            }
+            RentalDate = rentalDate;
+            ReturnDate = returnDate;
+            RentingUserId = rentingUserId.AssertIsNotEmpty(nameof(rentingUserId));
+        }
         
-        // TODO:
-        // public DateTime RentalDate { get; set; }
-        // public DateTime ReturnDate { get; set; }
-        // public Guid RentingUserId { get; set; }
-        // public decimal CalculateTotalPrice()
+        public List<EquipmentItem> EquipmentItems { get; }
+        public DateTime RentalDate { get; }
+        public DateTime ReturnDate { get; }
+        public Guid RentingUserId { get; }
+
+        public decimal CalculateTotalPrice()
+        {
+            return EquipmentItems.Sum(i => i.RentalPrice) * RentalDays();
+        }
+
+        public int RentalDays()
+        {
+            return (int)Math.Ceiling((ReturnDate - RentalDate).TotalDays);
+        }
     }
 }

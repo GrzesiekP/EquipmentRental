@@ -9,22 +9,20 @@ namespace Orders.Tests.Aggregate;
 public class AggregateTestsBase : TestsBase
 {
     protected Guid OrderId { get; private set; }
-    protected OrderData OrderData { get; set; }
-    protected Order Order { get; private set; }
+    protected OrderData? OrderData { get; set; }
+    protected Order Order { get; private set; } = new Order();
     protected int InitialVersion { get; private set; }
     
     protected IEnumerable<IEvent> GetAggregateEvents() => Order.DequeueUncommittedEvents();
     
     protected override void Given()
     {
-        OrderData = new OrderData
+        var equipmentItems = new List<EquipmentItem>
         {
-            Equipment = new List<EquipmentItem>
-            {
-                new() { EquipmentTypeCode = "TYPE_1", RentalPrice = 15 },
-                new() { EquipmentTypeCode = "TYPE_2", RentalPrice = 60 }
-            }
+            new() { EquipmentTypeCode = "TYPE_1", RentalPrice = 15 },
+            new() { EquipmentTypeCode = "TYPE_2", RentalPrice = 60 }
         };
+        OrderData = new OrderData(equipmentItems, DateTime.Today, DateTime.Today.AddDays(3), Guid.NewGuid());
         
         Order = InitializeAggregate();
     }
