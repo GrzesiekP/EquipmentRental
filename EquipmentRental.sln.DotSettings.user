@@ -1,11 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b2516afd_002D376a_002D495e_002D9481_002D1224a94b2edd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="RequestApprovalTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;MSTest::58194D93-6C28-4B9C-936C-1B4463FB091D::net6.0::Orders.Tests.Aggregate.WhenRequestApproval&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;MSTest::58194D93-6C28-4B9C-936C-1B4463FB091D::net6.0::Orders.Tests.Aggregate.WhenRequestApprovalForAlreadyRequested&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;MSTest::58194D93-6C28-4B9C-936C-1B4463FB091D::net6.0::Orders.Tests.Aggregate.WhenSubmitOrder.ThenStatusIsSubmitted&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;MSTest::58194D93-6C28-4B9C-936C-1B4463FB091D::net6.0::Orders.Tests.Aggregate.WhenSubmitOrder.ThenOrderDataIsPopulated&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Project Location="C:\projects-avantida\dev\side-proj\EquipmentRental\Orders.Tests" Presentation="&amp;lt;Orders.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cad131fa_002D3cb9_002D49d8_002D9d4c_002D011cf4285f7b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="InitializeOrderTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
