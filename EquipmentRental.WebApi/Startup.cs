@@ -3,6 +3,7 @@ using Core.Domain.Aggregates;
 using Core.EventStore;
 using EventStore.Client;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,22 @@ namespace EquipmentRental.WebApi
                 opt.ConfigureProjections();
             });
             services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
+
+            services
+                .AddAuthentication(opt =>
+                {
+                    opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(opt =>
+                {
+                    opt.LoginPath = "/account/google-login";
+                })
+                .AddGoogle(opt =>
+            {
+                opt.ClientId = Configuration["Google:ClientId"];
+                opt.ClientSecret = Configuration["Google:ClientSecret"];
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +81,9 @@ namespace EquipmentRental.WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
