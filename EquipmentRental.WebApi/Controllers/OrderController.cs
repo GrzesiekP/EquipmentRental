@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +35,7 @@ namespace EquipmentRental.WebApi.Controllers
         {
             var orderId = Guid.NewGuid();
 
-            var command = new SubmitOrder(orderId, orderData);
+            var command = new SubmitOrder(orderId, orderData, new MailAddress(User.Email()));
             await _mediator.Send(command);
 
             return Ok(orderId);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mail;
 using Core.Domain.Aggregates;
 using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
@@ -11,6 +12,7 @@ namespace Orders.Aggregate
     public class Order : Aggregate<Guid>, IAggregate
     {
         public OrderStatus Status { get; private set; }
+        public MailAddress ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
 
         // Required for event store
@@ -19,15 +21,15 @@ namespace Orders.Aggregate
         {
         }
 
-        public static Order Submit(Guid orderId, OrderData orderData)
+        public static Order Submit(Guid orderId, OrderData orderData, MailAddress clientEmail)
         {
-            var order = new Order(orderId, orderData);
+            var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
 
-        private Order(Guid id, OrderData orderData)
+        private Order(Guid id, OrderData orderData, MailAddress clientEmail)
         {
-            var orderSubmitted = new OrderSubmitted(id, orderData);
+            var orderSubmitted = new OrderSubmitted(id, orderData, clientEmail);
             
             PublishEvent(orderSubmitted);
             Apply(orderSubmitted);
@@ -74,6 +76,7 @@ namespace Orders.Aggregate
             Version++;
 
             Id = orderSubmitted.OrderId;
+            ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
             

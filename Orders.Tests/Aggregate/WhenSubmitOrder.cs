@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
-using Orders.ValueObjects;
 
 namespace Orders.Tests.Aggregate;
 
@@ -26,9 +23,18 @@ public class WhenSubmitOrder : AggregateTestsBase
         Assert.AreEqual(OrderStatus.Submitted, Order.Status);
     }
     
+        
+    [TestMethod]
+    public void ThenClientEmailIsPopulated()
+    {
+        Assert.IsNotNull(Order.ClientEmail);
+        Assert.AreEqual(ClientEmail.Address, Order.ClientEmail.Address);
+    }
+    
     [TestMethod]
     public void ThenOrderDataIsPopulated()
     {
+        Assert.IsNotNull(OrderData);
         CollectionAssert.AreEquivalent(OrderData.EquipmentItems, Order.OrderData.EquipmentItems);
     }
     
