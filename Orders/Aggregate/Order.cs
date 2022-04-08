@@ -12,7 +12,7 @@ namespace Orders.Aggregate
     public class Order : Aggregate<Guid>, IAggregate
     {
         public OrderStatus Status { get; private set; }
-        public MailAddress ClientEmail { get; private set; }
+        public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
 
         // Required for event store
@@ -21,13 +21,13 @@ namespace Orders.Aggregate
         {
         }
 
-        public static Order Submit(Guid orderId, OrderData orderData, MailAddress clientEmail)
+        public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
             var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
 
-        private Order(Guid id, OrderData orderData, MailAddress clientEmail)
+        private Order(Guid id, OrderData orderData, string clientEmail)
         {
             var orderSubmitted = new OrderSubmitted(id, orderData, clientEmail);
             

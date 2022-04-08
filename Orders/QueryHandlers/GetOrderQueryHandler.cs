@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Domain.Queries;
@@ -19,7 +20,9 @@ namespace Orders.QueryHandlers
 
         public async Task<IEnumerable<OrderInfo>> Handle(GetOrders request, CancellationToken cancellationToken)
         {
+            // Fails when user has no orders?
             return await _querySession.Query<OrderInfo>()
+                .Where(o => o.ClientEmail == request.ClientEmail)
                 .ToListAsync(token: cancellationToken);
         }
     }

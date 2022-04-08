@@ -1,0 +1,10 @@
+{
+  "equipmentItems": [
+    {
+      "equipmentTypeCode": "ITEM_TYPE_1",
+      "rentalPrice": 20.0
+    }
+  ],
+  "rentalDate": "2023-01-01",
+  "returnDate": "2023-01-02"
+}

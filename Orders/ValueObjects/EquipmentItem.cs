@@ -1,8 +1,15 @@
-﻿namespace Orders.ValueObjects
+﻿// ReSharper disable ConvertToPrimaryConstructor
+namespace Orders.ValueObjects
 {
     public record EquipmentItem
     {
-        public string EquipmentTypeCode { get; set; }
-        public decimal RentalPrice { get; set; }
+        public EquipmentItem(string equipmentTypeCode, decimal rentalPrice)
+        {
+            EquipmentTypeCode = equipmentTypeCode;
+            RentalPrice = rentalPrice;
+        }
+        
+        public string EquipmentTypeCode { get; }
+        public decimal RentalPrice { get; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Mail;
 using Core.Domain.Events;
 using Orders.Aggregate;
 using Orders.ValueObjects;
@@ -10,7 +9,7 @@ namespace Orders.Tests.Aggregate;
 public class AggregateTestsBase : TestsBase
 {
     protected Guid OrderId { get; private set; }
-    protected MailAddress ClientEmail { get; private set; }
+    protected string ClientEmail { get; private set; }
     protected OrderData? OrderData { get; set; }
     protected Order Order { get; private set; } = new();
     protected int InitialVersion { get; private set; }
@@ -21,11 +20,11 @@ public class AggregateTestsBase : TestsBase
     {
         var equipmentItems = new List<EquipmentItem>
         {
-            new() { EquipmentTypeCode = "TYPE_1", RentalPrice = 15 },
-            new() { EquipmentTypeCode = "TYPE_2", RentalPrice = 60 }
+            new( "TYPE_1", 15),
+            new("TYPE_2", 60)
         };
-        OrderData = new OrderData(equipmentItems, DateTime.Today, DateTime.Today.AddDays(3), Guid.NewGuid());
-        ClientEmail = new MailAddress("user@gmail.com");
+        OrderData = new OrderData(equipmentItems, DateTime.Today, DateTime.Today.AddDays(3));
+        ClientEmail = "user@gmail.com";
         Order = InitializeAggregate();
     }
 

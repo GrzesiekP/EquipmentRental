@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Net.Mail;
+using System.Linq;
 using System.Threading.Tasks;
+using EquipmentRental.WebApi.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Commands;
 using Orders.Queries;
 using Orders.ValueObjects;
+using EquipmentItem = Orders.ValueObjects.EquipmentItem;
 
 namespace EquipmentRental.WebApi.Controllers
 {
@@ -25,17 +27,22 @@ namespace EquipmentRental.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetOrders()
         {
-            var result = await _mediator.Send(new GetOrders());
+            var result = await _mediator.Send(new GetOrders(User.Email()));
 
+            // TODO: After approving still displays old status
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitOrder([FromBody] OrderData orderData)
+        public async Task<IActionResult> SubmitOrder([FromBody] SubmitOrderInput input)
         {
             var orderId = Guid.NewGuid();
 
-            var command = new SubmitOrder(orderId, orderData, new MailAddress(User.Email()));
+            var orderData = new OrderData(
+                input.EquipmentItems.Select(i => new EquipmentItem(i.EquipmentTypeCode, i.RentalPrice)).ToList(),
+                input.RentalDate,
+                input.ReturnDate);
+            var command = new SubmitOrder(orderId, orderData, User.Email());
             await _mediator.Send(command);
 
             return Ok(orderId);
