@@ -21,7 +21,7 @@ namespace Orders.CommandHandlers
         {
             var order = await _orderEventStoreRepository.Find(command.OrderId);
 
-            order.ApproveRequest(command);
+            order.Approve(command);
 
             await _orderEventStoreRepository.Update(order);
             

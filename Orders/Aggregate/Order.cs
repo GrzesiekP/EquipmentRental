@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Mail;
 using Core.Domain.Aggregates;
 using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
@@ -50,7 +49,7 @@ namespace Orders.Aggregate
             Apply(approvalRequested);
         }
 
-        public void ApproveRequest(ApproveOrder approveOrder)
+        public void Approve(ApproveOrder approveOrder)
         {
             if (Status != OrderStatus.WaitingForApproval)
             {
