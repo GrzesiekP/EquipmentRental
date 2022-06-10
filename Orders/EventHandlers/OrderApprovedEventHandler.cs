@@ -7,11 +7,11 @@ using Orders.Events;
 
 namespace Orders.EventHandlers
 {
-    public class RequestApprovedEventHandler : IEventHandler<OrderApproved>
+    public class OrderApprovedEventHandler : IEventHandler<OrderApproved>
     {
         private readonly IMediator _mediator;
         
-        public RequestApprovedEventHandler(IMediator mediator)
+        public OrderApprovedEventHandler(IMediator mediator)
         {
             _mediator = mediator;
         }
