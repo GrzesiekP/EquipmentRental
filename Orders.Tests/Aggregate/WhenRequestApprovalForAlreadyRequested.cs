@@ -15,7 +15,7 @@ public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase
     {
         base.Given();
         
-        var requestApproval = new RequestApproval(OrderId);
+        var requestApproval = new RequestOrderApproval(OrderId);
         Order.RequestApproval(requestApproval);
     }
 
@@ -30,7 +30,7 @@ public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase
     [TestMethod]
     public void ThrowsException()
     {
-        var requestApproval = new RequestApproval(OrderId);
+        var requestApproval = new RequestOrderApproval(OrderId);
         Assert.ThrowsException<Exception>(() => Order.RequestApproval(requestApproval));
     }
     

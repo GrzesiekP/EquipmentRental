@@ -6,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenSubmitOrder : AggregateTestsBase
+public class WhenOrderSubmitted : AggregateTestsBase
 {
     private OrderSubmitted? _orderSubmitted;
 

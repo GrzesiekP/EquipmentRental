@@ -7,13 +7,13 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenRequestApproval : AggregateTestsBase
+public class WhenApprovalRequested : AggregateTestsBase
 {
     private ApprovalRequested? _approvalRequested;
 
     protected override void When()
     {
-        var requestApproval = new RequestApproval(OrderId);
+        var requestApproval = new RequestOrderApproval(OrderId);
         Order.RequestApproval(requestApproval);
         
         var e = GetAggregateEvents().SingleOrDefault(e => e.GetType() == typeof(ApprovalRequested));
