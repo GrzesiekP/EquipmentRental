@@ -3,9 +3,9 @@ using Core.Domain.Commands;
 
 namespace Orders.Commands
 {
-    public class RequestApproval : ICommand
+    public class RequestOrderApproval : ICommand
     {
-        public RequestApproval(Guid orderId)
+        public RequestOrderApproval(Guid orderId)
         {
             OrderId = orderId;
         }

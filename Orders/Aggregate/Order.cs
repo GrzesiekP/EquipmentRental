@@ -35,31 +35,31 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
-        public void RequestApproval(RequestApproval requestApproval)
+        public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
-                    $"Cannot request for approval for OrderId:{requestApproval.OrderId}, " +
+                    $"Cannot request for approval for OrderId:{requestOrderApproval.OrderId}, " +
                     $"because it is in status {Status}");
             }
             
-            var approvalRequested = new ApprovalRequested(requestApproval.OrderId);
+            var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
 
-        public void ApproveRequest(ApproveRequest approveRequest)
+        public void ApproveRequest(ApproveOrder approveOrder)
         {
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
-                    $"Cannot approved order OrderId:{approveRequest.OrderId}, " +
+                    $"Cannot approved order OrderId:{approveOrder.OrderId}, " +
                     $"because it is in status {Status}");
             }
             
-            var requestApproved = new RequestApproved(approveRequest.OrderId);
+            var requestApproved = new OrderApproved(approveOrder.OrderId);
             
             PublishEvent(requestApproved);
             Apply(requestApproved);
@@ -93,13 +93,13 @@ namespace Orders.Aggregate
             Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
         }
         
-        private void Apply(RequestApproved requestApproved)
+        private void Apply(OrderApproved orderApproved)
         {
             Version++;
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(RequestApproved)}. Order:{Id}");
+            Console.WriteLine($"{nameof(OrderApproved)}. Order:{Id}");
         }
         #endregion
     }

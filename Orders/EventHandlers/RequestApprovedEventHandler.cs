@@ -7,7 +7,7 @@ using Orders.Events;
 
 namespace Orders.EventHandlers
 {
-    public class RequestApprovedEventHandler : IEventHandler<RequestApproved>
+    public class RequestApprovedEventHandler : IEventHandler<OrderApproved>
     {
         private readonly IMediator _mediator;
         
@@ -16,9 +16,9 @@ namespace Orders.EventHandlers
             _mediator = mediator;
         }
         
-        public Task Handle(RequestApproved requestApproved, CancellationToken cancellationToken)
+        public Task Handle(OrderApproved orderApproved, CancellationToken cancellationToken)
         {
-            var notifyClient = new NotifyClient(requestApproved.OrderId);
+            var notifyClient = new NotifyClient(orderApproved.OrderId);
 
             return _mediator.Send(notifyClient, cancellationToken);
         }

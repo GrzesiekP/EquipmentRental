@@ -8,20 +8,20 @@ using Orders.Commands;
 
 namespace Orders.CommandHandlers
 {
-    public class ApproveRequestCommandHandler : ICommandHandler<ApproveRequest>
+    public class RequestOrderApprovalCommandHandler : ICommandHandler<RequestOrderApproval>
     {
         private readonly IMartenEventStoreRepository<Order> _orderEventStoreRepository;
 
-        public ApproveRequestCommandHandler(IMartenEventStoreRepository<Order> orderEventStoreRepository)
+        public RequestOrderApprovalCommandHandler(IMartenEventStoreRepository<Order> orderEventStoreRepository)
         {
             _orderEventStoreRepository = orderEventStoreRepository;
         }
-
-        public async Task<Unit> Handle(ApproveRequest command, CancellationToken cancellationToken)
+        
+        public async Task<Unit> Handle(RequestOrderApproval command, CancellationToken cancellationToken)
         {
             var order = await _orderEventStoreRepository.Find(command.OrderId);
 
-            order.ApproveRequest(command);
+            order.RequestApproval(command);
 
             await _orderEventStoreRepository.Update(order);
             

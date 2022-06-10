@@ -3,9 +3,9 @@ using Core.Domain.Events;
 
 namespace Orders.Events
 {
-    public class RequestApproved : IEvent
+    public class OrderApproved : IEvent
     {
-        public RequestApproved(Guid orderId)
+        public OrderApproved(Guid orderId)
         {
             OrderId = orderId;
         }

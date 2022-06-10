@@ -23,7 +23,7 @@ namespace Orders.Projections
                 case ApprovalRequested approvalRequested:
                     Apply(approvalRequested);
                     return;
-                case RequestApproved requestApproved:
+                case OrderApproved requestApproved:
                     Apply(requestApproved);
                     return;
             }
@@ -42,7 +42,7 @@ namespace Orders.Projections
             Status = OrderStatus.WaitingForApproval;
         }
         
-        public void Apply(RequestApproved e)
+        public void Apply(OrderApproved e)
         {
             Status = OrderStatus.Approved;
         }

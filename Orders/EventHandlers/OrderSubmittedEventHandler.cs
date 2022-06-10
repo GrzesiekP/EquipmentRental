@@ -18,7 +18,7 @@ namespace Orders.EventHandlers
         
         public Task Handle(OrderSubmitted eOrderSubmitted, CancellationToken cancellationToken)
         {
-            var requestApproval = new RequestApproval(eOrderSubmitted.OrderId);
+            var requestApproval = new RequestOrderApproval(eOrderSubmitted.OrderId);
 
             return _mediator.Send(requestApproval, cancellationToken);
         }

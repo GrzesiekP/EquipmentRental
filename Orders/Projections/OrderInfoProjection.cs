@@ -11,7 +11,7 @@ namespace Orders.Projections
 
             ProjectEvent<ApprovalRequested>((orderInfo, e) => orderInfo.Apply(e));
 
-            ProjectEvent<RequestApproved>((orderInfo, e) => orderInfo.Apply(e));
+            ProjectEvent<OrderApproved>((orderInfo, e) => orderInfo.Apply(e));
         }
     }
 }

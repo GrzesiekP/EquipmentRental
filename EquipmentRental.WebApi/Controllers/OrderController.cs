@@ -52,7 +52,7 @@ namespace EquipmentRental.WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> ApproveRequest([FromBody] Guid orderId)
         {
-            var command = new ApproveRequest(orderId);
+            var command = new ApproveOrder(orderId);
 
             await _mediator.Send(command);
 
