@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
@@ -6,15 +5,13 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenOrderSubmitted : AggregateTestsBase
+public class WhenOrderSubmitted : AggregateTestsBase<OrderSubmitted>
 {
     private OrderSubmitted? _orderSubmitted;
 
     protected override void When()
     {
-        var e = GetAggregateEvents().SingleOrDefault(e => e.GetType() == typeof(OrderSubmitted));
-        _orderSubmitted = (OrderSubmitted)e!;
-        base.When();
+        _orderSubmitted = GetEvent();
     }
 
     [TestMethod]

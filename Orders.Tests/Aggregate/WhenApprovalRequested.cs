@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
@@ -7,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenApprovalRequested : AggregateTestsBase
+public class WhenApprovalRequested : AggregateTestsBase<ApprovalRequested>
 {
     private ApprovalRequested? _approvalRequested;
 
@@ -16,10 +15,7 @@ public class WhenApprovalRequested : AggregateTestsBase
         var requestApproval = new RequestOrderApproval(OrderId);
         Order.RequestApproval(requestApproval);
         
-        var e = GetAggregateEvents().SingleOrDefault(e => e.GetType() == typeof(ApprovalRequested));
-        _approvalRequested = (ApprovalRequested)e!;
-        
-        base.When();
+        _approvalRequested = GetEvent();
     }
 
     [TestMethod]

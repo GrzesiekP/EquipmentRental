@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Commands;
 using Orders.Events;
@@ -7,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase
+public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase<ApprovalRequested>
 {
     private ApprovalRequested? _approvalRequested;
 
@@ -21,10 +20,7 @@ public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase
 
     protected override void When()
     {
-        base.When();
-        
-        var e = GetAggregateEvents().SingleOrDefault(e => e.GetType() == typeof(ApprovalRequested));
-        _approvalRequested = (ApprovalRequested)e!;
+        _approvalRequested = GetEvent();
     }
 
     [TestMethod]

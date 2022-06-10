@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.Domain.Events;
 using Orders.Aggregate;
 using Orders.ValueObjects;
 
 namespace Orders.Tests.Aggregate;
 
-public class AggregateTestsBase : TestsBase
+public class AggregateTestsBase<T> : TestsBase where T: IEvent
 {
     protected Guid OrderId { get; private set; }
     protected string ClientEmail { get; private set; }
@@ -36,5 +37,11 @@ public class AggregateTestsBase : TestsBase
         InitialVersion = aggregate.Version;
 
         return aggregate;
+    }
+
+    protected T? GetEvent()
+    {
+        var e = GetAggregateEvents().SingleOrDefault(e => e.GetType() == typeof(T));
+        return e != null ? (T)e : default;
     }
 }
