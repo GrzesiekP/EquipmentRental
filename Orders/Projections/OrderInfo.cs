@@ -39,12 +39,12 @@ namespace Orders.Projections
         
         public void Apply(ApprovalRequested e)
         {
-            Status = OrderStatus.Submitted;
+            Status = OrderStatus.WaitingForApproval;
         }
         
         public void Apply(RequestApproved e)
         {
-            Status = OrderStatus.Submitted;
+            Status = OrderStatus.Approved;
         }
     }
 }

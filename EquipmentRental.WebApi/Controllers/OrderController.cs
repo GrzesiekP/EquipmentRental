@@ -29,7 +29,6 @@ namespace EquipmentRental.WebApi.Controllers
         {
             var result = await _mediator.Send(new GetOrders(User.Email()));
 
-            // TODO: After approving still displays old status
             return Ok(result);
         }
 
@@ -39,7 +38,9 @@ namespace EquipmentRental.WebApi.Controllers
             var orderId = Guid.NewGuid();
 
             var orderData = new OrderData(
-                input.EquipmentItems.Select(i => new EquipmentItem(i.EquipmentTypeCode, i.RentalPrice)).ToList(),
+                input.EquipmentItems
+                    .Select(i => new EquipmentItem(i.EquipmentTypeCode, i.RentalPrice))
+                    .ToList(),
                 input.RentalDate,
                 input.ReturnDate);
             var command = new SubmitOrder(orderId, orderData, User.Email());
