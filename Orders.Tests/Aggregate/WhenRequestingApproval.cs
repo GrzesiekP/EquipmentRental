@@ -6,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenApprovalRequested : AggregateTestsBase<ApprovalRequested>
+public class WhenRequestingApproval : AggregateTestsBase<ApprovalRequested>
 {
     private ApprovalRequested? _approvalRequested;
 
@@ -34,6 +34,11 @@ public class WhenApprovalRequested : AggregateTestsBase<ApprovalRequested>
     public void ThenApprovalRequestedPublished()
     {
         Assert.IsNotNull(_approvalRequested);
-        Assert.AreEqual(OrderId, _approvalRequested.OrderId);
+    }
+
+    [TestMethod]
+    public void ThenOrderIdIsCorrect()
+    {
+        Assert.AreEqual(OrderId, _approvalRequested?.OrderId);
     }
 }

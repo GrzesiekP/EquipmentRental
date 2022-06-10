@@ -6,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenRequestApprovalForAlreadyRequested : AggregateTestsBase<ApprovalRequested>
+public class WhenRequestingApprovalForAlreadyRequested : AggregateTestsBase<ApprovalRequested>
 {
     private ApprovalRequested? _approvalRequested;
 

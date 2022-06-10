@@ -6,7 +6,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenOrderApproved : AggregateTestsBase<OrderApproved>
+public class WhenApprovingOrder : AggregateTestsBase<OrderApproved>
 {
     private OrderApproved? _orderApproved;
 

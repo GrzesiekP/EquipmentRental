@@ -54,7 +54,7 @@ namespace Orders.Aggregate
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
-                    $"Cannot approved order OrderId:{approveOrder.OrderId}, " +
+                    $"Cannot approve order OrderId:{approveOrder.OrderId}, " +
                     $"because it is in status {Status}");
             }
             

@@ -5,7 +5,7 @@ using Orders.Events;
 namespace Orders.Tests.Aggregate;
 
 [TestClass]
-public class WhenOrderSubmitted : AggregateTestsBase<OrderSubmitted>
+public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
 {
     private OrderSubmitted? _orderSubmitted;
 
@@ -33,6 +33,13 @@ public class WhenOrderSubmitted : AggregateTestsBase<OrderSubmitted>
     {
         Assert.IsNotNull(OrderData);
         CollectionAssert.AreEquivalent(OrderData.EquipmentItems, Order.OrderData.EquipmentItems);
+    }
+    
+    [TestMethod]
+    public void ThenRentalDatesArePopulated()
+    {
+        Assert.AreEqual(OrderData?.RentalDate, Order.OrderData.RentalDate);
+        Assert.AreEqual(OrderData?.ReturnDate, Order.OrderData.ReturnDate);
     }
     
     [TestMethod]
