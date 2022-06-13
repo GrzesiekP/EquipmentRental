@@ -22,9 +22,9 @@ namespace Core.EventStore
                 .AddMarten(options => { SetStoreOptions(options, martenConfig, configureOptions); })
                 .InitializeStore();
 
-            SetupSchema(documentStore, martenConfig, 1);
+            SetupSchema(documentStore, martenConfig);
         }
-        
+
         private static void SetupSchema(IDocumentStore documentStore, MartenConfig martenConfig, int retryLeft = 1)
         {
             try
@@ -55,7 +55,6 @@ namespace Core.EventStore
             var schemaName = Environment.GetEnvironmentVariable("SchemaName");
             options.Events.DatabaseSchemaName = schemaName ?? config.WriteModelSchema;
             options.DatabaseSchemaName = schemaName ?? config.ReadModelSchema;
-
 
             var serializer = new JsonNetSerializer { EnumStorage = EnumStorage.AsString };
             serializer.Customize(s =>

@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Core.EventStore
 {
-    public class JsonObjectContractProvider
+    public static class JsonObjectContractProvider
     {
         private static readonly Type ConstructorAttributeType = typeof(JsonConstructorAttribute);
         private static readonly ConcurrentDictionary<string, JsonObjectContract> Constructors = new();
