@@ -31,6 +31,21 @@ namespace EquipmentRental.WebApi.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet]
+        [Route("[controller]/{orderId:guid}")]
+        public async Task<IActionResult> GetOrder(Guid orderId)
+        {
+            var result = await _mediator.Send(new GetOrder(orderId, User.Email()));
+
+            if (result is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+
+        }
 
         [HttpPost]
         public async Task<IActionResult> SubmitOrder([FromBody] SubmitOrderInput input)
