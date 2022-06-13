@@ -21,13 +21,6 @@ namespace Core.Extensions
             return list;
         }
 
-        public static Guid AssertIsNotEmpty(this Guid guid, string parameterName)
-        {
-            return guid != Guid.Empty ?
-                guid :
-                throw new ArgumentNullException(parameterName);
-        }
-
         public static string AssertIsValidEmail(this string email, string parameterName)
         {
             try
