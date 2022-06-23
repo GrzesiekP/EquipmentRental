@@ -25,7 +25,7 @@ public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
     public void ThenClientEmailIsPopulated()
     {
         Assert.IsNotNull(Order.ClientEmail);
-        Assert.AreEqual(ClientEmail, Order.ClientEmail);
+        Assert.AreEqual(UserEmail, Order.ClientEmail);
     }
     
     [TestMethod]

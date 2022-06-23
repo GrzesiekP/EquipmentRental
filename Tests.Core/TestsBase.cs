@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Orders.Tests;
+namespace Tests.Core;
 
 [TestClass]
 public class TestsBase

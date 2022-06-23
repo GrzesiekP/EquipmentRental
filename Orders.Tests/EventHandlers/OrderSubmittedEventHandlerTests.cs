@@ -8,13 +8,14 @@ using Orders.Commands;
 using Orders.EventHandlers;
 using Orders.Events;
 using Orders.ValueObjects;
+using Tests.Core;
 
 namespace Orders.Tests.EventHandlers;
 
 [TestClass]
 public class OrderSubmittedEventHandlerTests : TestsBase
 {
-    private OrderSubmittedEventHandler _handler;
+    private OrderSubmittedEventHandler? _handler;
     private readonly Mock<IMediator> _mediatorMock = new();
     private Guid _orderId;
     
@@ -30,7 +31,7 @@ public class OrderSubmittedEventHandlerTests : TestsBase
     {
         base.When();
 
-        _handler.Handle(GenerateTestEvent(), new CancellationToken());
+        _handler!.Handle(GenerateTestEvent(), new CancellationToken());
     }
 
     [TestMethod]

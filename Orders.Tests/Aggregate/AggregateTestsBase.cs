@@ -4,18 +4,19 @@ using System.Linq;
 using Core.Domain.Events;
 using Orders.Aggregate;
 using Orders.ValueObjects;
+using Tests.Core;
 
 namespace Orders.Tests.Aggregate;
 
 public class AggregateTestsBase<T> : TestsBase where T: IEvent
 {
     protected Guid OrderId { get; private set; }
-    protected string ClientEmail { get; private set; }
+    protected string? UserEmail { get; private set; }
     protected OrderData? OrderData { get; set; }
     protected Order Order { get; private set; } = new();
     protected int InitialVersion { get; private set; }
-    
-    protected IEnumerable<IEvent> GetAggregateEvents() => Order.DequeueUncommittedEvents();
+
+    private IEnumerable<IEvent> GetAggregateEvents() => Order.DequeueUncommittedEvents();
     
     protected override void Given()
     {
@@ -25,14 +26,14 @@ public class AggregateTestsBase<T> : TestsBase where T: IEvent
             new("TYPE_2", 60)
         };
         OrderData = new OrderData(equipmentItems, DateTime.Today, DateTime.Today.AddDays(3));
-        ClientEmail = "user@gmail.com";
+        UserEmail = "user@gmail.com";
         Order = InitializeAggregate();
     }
 
     private Order InitializeAggregate()
     {
         OrderId = Guid.NewGuid();
-        var aggregate = Order.Submit(OrderId, OrderData, ClientEmail);
+        var aggregate = Order.Submit(OrderId, OrderData, UserEmail);
 
         InitialVersion = aggregate.Version;
 

@@ -14,32 +14,32 @@ public class WhenOrderSubmitted : OrderInfoTestsBase
         var orderSubmitted = new OrderSubmitted(
             OrderId, 
             OrderData,
-            ClientEmail
+            UserEmail
         );
-        Projection.When(orderSubmitted);
+        Projection!.When(orderSubmitted);
     }
 
     [TestMethod]
     public void ThenOrderIdIsUpdated()
     {
-        Assert.AreEqual(OrderId, Projection.Id);
+        Assert.AreEqual(OrderId, Projection!.Id);
     }
     
     [TestMethod]
     public void ThenOrderDataIsUpdated()
     {
-        Assert.AreEqual(OrderData, Projection.OrderData);
+        Assert.AreEqual(OrderData, Projection!.OrderData);
     }
     
     [TestMethod]
     public void ThenClientEmailIsUpdated()
     {
-        Assert.AreEqual(ClientEmail, Projection.ClientEmail);
+        Assert.AreEqual(UserEmail, Projection!.ClientEmail);
     }
     
     [TestMethod]
     public void ThenStatusIsUpdated()
     {
-        Assert.AreEqual(OrderStatus.Submitted, Projection.Status);
+        Assert.AreEqual(OrderStatus.Submitted, Projection!.Status);
     }
 }

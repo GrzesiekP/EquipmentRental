@@ -6,13 +6,14 @@ using Moq;
 using Orders.Commands;
 using Orders.EventHandlers;
 using Orders.Events;
+using Tests.Core;
 
 namespace Orders.Tests.EventHandlers;
 
 [TestClass]
 public class OrderApprovedEventHandlerTests : TestsBase
 {
-    private OrderApprovedEventHandler _handler;
+    private OrderApprovedEventHandler? _handler;
     private readonly Mock<IMediator> _mediatorMock = new();
     private Guid _orderId;
     
@@ -28,7 +29,7 @@ public class OrderApprovedEventHandlerTests : TestsBase
     {
         base.When();
 
-        _handler.Handle(new OrderApproved(_orderId), new CancellationToken());
+        _handler!.Handle(new OrderApproved(_orderId), new CancellationToken());
     }
 
     [TestMethod]
