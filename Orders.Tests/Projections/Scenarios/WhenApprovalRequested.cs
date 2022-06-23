@@ -12,12 +12,12 @@ public class WhenApprovalRequested : OrderInfoTestsBase
         base.When();
 
         var approvalRequested = new ApprovalRequested(OrderId);
-        Projection.When(approvalRequested);
+        Projection!.When(approvalRequested);
     }
 
     [TestMethod]
     public void ThenStatusIsUpdated()
     {
-        Assert.AreEqual(OrderStatus.WaitingForApproval, Projection.Status);
+        Assert.AreEqual(OrderStatus.WaitingForApproval, Projection!.Status);
     }
 }

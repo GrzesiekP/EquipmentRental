@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Orders.Commands;
@@ -30,8 +31,9 @@ public class WhenApprovingAnOrder : OrdersControllerTestsBase
     [TestMethod]
     public void ThenResponseIsSuccessful()
     {
-        Assert.IsNotNull(AcceptedResult);
-        Assert.AreEqual((int)HttpStatusCode.Accepted, AcceptedResult.StatusCode);
+        AcceptedResult.Should()
+            .NotBeNull();
+        AcceptedResult!.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
     }
     
     [TestMethod]

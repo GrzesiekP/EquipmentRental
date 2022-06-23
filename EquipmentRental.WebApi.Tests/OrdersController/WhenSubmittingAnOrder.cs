@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using EquipmentRental.WebApi.Models;
+using FluentAssertions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -57,10 +59,11 @@ public class WhenSubmittingAnOrder : OrdersControllerTestsBase
     [TestMethod]
     public void ThenResponseContainsOrderId()
     {
-        var value = OkResult?.Value;
-        Assert.IsNotNull(value);
-        Assert.IsInstanceOfType(value, typeof(Guid));
-        Assert.AreNotEqual(Guid.Empty, (Guid)value);
+        var response = OkResult?.Value;
+        response.Should()
+            .NotBeNull().And
+            .BeOfType<Guid>().And
+            .NotBe(Guid.Empty);
     }
     
     [TestMethod]
@@ -76,10 +79,10 @@ public class WhenSubmittingAnOrder : OrdersControllerTestsBase
     public void DataInSentSubmitOrderIsCorrect()
     {
         Assert.AreEqual(UserEmail, _sendMessage!.ClientEmail);
+        Assert.IsNotNull(_sendMessage.OrderData);
         var orderData = _sendMessage.OrderData;
         Assert.AreEqual(_orderDate, orderData.RentalDate);
         Assert.AreEqual(_orderDate.AddDays(OrderDays), orderData.ReturnDate);
         Assert.AreEqual(_input!.EquipmentItems.Count, orderData.EquipmentItems.Count);
-        Assert.IsNotNull(_sendMessage.OrderData);
     }
 }
