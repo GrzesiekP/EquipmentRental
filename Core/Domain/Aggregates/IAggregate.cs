@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Domain.Events;
 
 namespace Core.Domain.Aggregates
 {
@@ -9,6 +10,6 @@ namespace Core.Domain.Aggregates
 
     public interface IAggregate : IAggregate<Guid>
     {
-        
+        IEvent[] DequeueUncommittedEvents();
     }
 }
