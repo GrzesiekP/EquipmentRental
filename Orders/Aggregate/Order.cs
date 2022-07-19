@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Core.Domain.Aggregates;
 using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
@@ -20,6 +21,7 @@ namespace Orders.Aggregate
         {
         }
 
+        // Klient: złóż zamówienie
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
             var order = new Order(orderId, orderData, clientEmail);
@@ -34,6 +36,7 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
+        // auto: wyślij prośbę o akceptację
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
             if (Status != OrderStatus.Submitted)
@@ -49,6 +52,7 @@ namespace Orders.Aggregate
             Apply(approvalRequested);
         }
 
+        // Admin: potwierdź zamówienie
         public void Approve(ApproveOrder approveOrder)
         {
             if (Status != OrderStatus.WaitingForApproval)
@@ -62,6 +66,49 @@ namespace Orders.Aggregate
             
             PublishEvent(requestApproved);
             Apply(requestApproved);
+        }
+        
+        // Admin: zgłoś, że opłacono
+        public void PayOrder(PayOrder command)
+        {
+            var orderPaid = new OrderPaid();
+            
+            PublishEvent(orderPaid);
+            Apply(orderPaid);
+        }
+        
+        // Auto: Zarezerwuj sprzęt
+        public void ReserveEquipment(ReserveEquipment command)
+        {
+            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
+            {
+                var equipmentReserved = new EquipmentReserved();
+                
+                PublishEvent(equipmentReserved);
+                Apply(equipmentReserved);
+            }
+
+            // jeśli minął czas na wpłatę powiadom, że sprzętu już nie ma
+            
+            // jeśli nie minął, throw
+        }
+        
+        // Admin: wydaj sprzęt
+        public void RentEquipment(RentEquipment command)
+        {
+            var equipmentRent = new EquipmentRent();
+            
+            PublishEvent(equipmentRent);
+            Apply(equipmentRent);
+        }
+        
+        // Admin: zgłoś zwrot sprzętu
+        public void ReturnEquipment(ReturnEquipment command)
+        {
+            var equipmentReturned = new EquipmentReturned();
+            
+            PublishEvent(equipmentReturned);
+            Apply(equipmentReturned);
         }
 
         private void PublishEvent(IEvent eventToPublish)
@@ -100,6 +147,56 @@ namespace Orders.Aggregate
             
             Console.WriteLine($"{nameof(OrderApproved)}. Order:{Id}");
         }
+        
+        private void Apply(OrderPaid orderPaid)
+        {
+            Version++;
+            
+            Status = OrderStatus.Paid;
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentReserved equipmentReserved)
+        {
+            Version++;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.ReserveFor(OrderData.RentalPeriod);
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentRent equipmentRent)
+        {
+            Version++;
+
+            Status = OrderStatus.InRealisation;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Rent();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentReturned equipmentReturned)
+        {
+            Version++;
+
+            Status = OrderStatus.Completed;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Release();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
         #endregion
     }
 }

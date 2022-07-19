@@ -20,5 +20,8 @@ namespace Orders.Models.ValueObjects
         }
 
         public TimeSpan Value => ReturnDate - RentalDate;
+
+        public bool IntersectsWith(RentalPeriod rentalPeriod) =>
+            rentalPeriod.RentalDate < ReturnDate || rentalPeriod.ReturnDate > RentalDate;
     }
 }
