@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Core.Domain.Aggregates;
 using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
@@ -8,7 +9,11 @@ using Orders.ValueObjects;
 
 namespace Orders.Aggregate
 {
-    public class Order : Aggregate<Guid>, IAggregate
+    public class Order : Aggregate<Guid>,
+        IAggregateConsumer<RequestOrderApproval, ApprovalRequested>,
+        IAggregateConsumer<ApproveOrder, OrderApproved>,
+        IAggregateConsumer<SubmitOrder, OrderSubmitted>,
+        IAggregate
     {
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
@@ -19,7 +24,15 @@ namespace Orders.Aggregate
         public Order()
         {
         }
+        
+        public IEnumerable<OrderSubmitted> Consume(SubmitOrder command)
+        {
+            var order = new Order(command.OrderId, command.OrderData, command.ClientEmail);
+            var orderSubmitted = new OrderSubmitted(order.Id, order.OrderData, order.ClientEmail);
+            yield return orderSubmitted;
+        }
 
+        // OLD
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
             var order = new Order(orderId, orderData, clientEmail);
@@ -34,6 +47,7 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
+        // OLD
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
             if (Status != OrderStatus.Submitted)
@@ -48,7 +62,35 @@ namespace Orders.Aggregate
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
+        
+        public IEnumerable<ApprovalRequested> Consume(RequestOrderApproval command)
+        {
+            if (Status != OrderStatus.Submitted)
+            {
+                throw new Exception(
+                    $"Cannot request for approval for OrderId:{command.OrderId}, " +
+                    $"because it is in status {Status}");
+            }
+            
+            var approvalRequested = new ApprovalRequested(command.OrderId);
 
+            yield return approvalRequested;
+        }
+
+        public IEnumerable<OrderApproved> Consume(ApproveOrder approveOrder)
+        {
+            if (Status != OrderStatus.WaitingForApproval)
+            {
+                throw new Exception(
+                    $"Cannot approve order OrderId:{approveOrder.OrderId}, " +
+                    $"because it is in status {Status}");
+            }
+            
+            var requestApproved = new OrderApproved(approveOrder.OrderId);
+            yield return requestApproved;
+        }
+
+        // OLD
         public void Approve(ApproveOrder approveOrder)
         {
             if (Status != OrderStatus.WaitingForApproval)
@@ -70,7 +112,7 @@ namespace Orders.Aggregate
         }
 
         #region Apply
-        private void Apply(OrderSubmitted orderSubmitted)
+        public void Apply(OrderSubmitted orderSubmitted)
         {
             Version++;
 
@@ -83,7 +125,7 @@ namespace Orders.Aggregate
             Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
         }
         
-        private void Apply(ApprovalRequested approvalRequested)
+        public void Apply(ApprovalRequested approvalRequested)
         {
             Version++;
             
@@ -92,7 +134,7 @@ namespace Orders.Aggregate
             Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
         }
         
-        private void Apply(OrderApproved orderApproved)
+        public void Apply(OrderApproved orderApproved)
         {
             Version++;
             
