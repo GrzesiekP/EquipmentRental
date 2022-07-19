@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Orders.ValueObjects;
+using Orders.Models.Entities;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Tests.ValueObjectsTests;
 
@@ -20,21 +21,20 @@ public class OrderDataTests
 
         var items = new List<EquipmentItem>
         {
-            new("CODE1", 10m),
-            new("CODE2", 90m),
+            new(new EquipmentType("CODE1", 10m)),
+            new(new EquipmentType("CODE2", 90m)),
         };
         
         _orderData = new OrderData(
             items,
-            rentalDate,
-            returnDate
+            new RentalPeriod(rentalDate, returnDate)
         );
     }
     
     [TestMethod]
     public void CalculateRentalDaysTests()
     {
-        var expectedPrice = _orderData.EquipmentItems.Sum(i => i.RentalPrice) * ExpectedRentalDays;
+        var expectedPrice = _orderData.EquipmentItems.Sum(i => i.Type.RentalPrice) * ExpectedRentalDays;
         Assert.AreEqual(expectedPrice, _orderData.CalculateTotalPrice());
     }
 }

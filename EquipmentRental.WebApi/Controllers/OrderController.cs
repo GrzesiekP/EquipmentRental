@@ -6,9 +6,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Orders.Commands;
+using Orders.Models.ValueObjects;
 using Orders.Queries;
-using Orders.ValueObjects;
-using EquipmentItem = Orders.ValueObjects.EquipmentItem;
+using EquipmentItem = Orders.Models.Entities.EquipmentItem;
 
 namespace EquipmentRental.WebApi.Controllers
 {
@@ -54,10 +54,9 @@ namespace EquipmentRental.WebApi.Controllers
 
             var orderData = new OrderData(
                 input.EquipmentItems
-                    .Select(i => new EquipmentItem(i.EquipmentTypeCode, i.RentalPrice))
+                    .Select(i => new EquipmentItem(new EquipmentType(i.EquipmentTypeCode, i.RentalPrice)))
                     .ToList(),
-                input.RentalDate,
-                input.ReturnDate);
+                new RentalPeriod(input.RentalDate, input.ReturnDate));
             var command = new SubmitOrder(orderId, orderData, User.Email());
             await _mediator.Send(command);
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using EquipmentRental.WebApi.Models;
@@ -81,8 +80,8 @@ public class WhenSubmittingAnOrder : OrdersControllerTestsBase
         Assert.AreEqual(UserEmail, _sendMessage!.ClientEmail);
         Assert.IsNotNull(_sendMessage.OrderData);
         var orderData = _sendMessage.OrderData;
-        Assert.AreEqual(_orderDate, orderData.RentalDate);
-        Assert.AreEqual(_orderDate.AddDays(OrderDays), orderData.ReturnDate);
+        Assert.AreEqual(_orderDate, orderData.RentalPeriod.RentalDate);
+        Assert.AreEqual(_orderDate.AddDays(OrderDays), orderData.RentalPeriod.ReturnDate);
         Assert.AreEqual(_input!.EquipmentItems.Count, orderData.EquipmentItems.Count);
     }
 }

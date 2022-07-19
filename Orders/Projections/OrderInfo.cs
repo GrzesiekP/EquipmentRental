@@ -2,7 +2,7 @@
 using Core.Domain.Projections;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Projections
 {

@@ -38,8 +38,7 @@ public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
     [TestMethod]
     public void ThenRentalDatesArePopulated()
     {
-        Assert.AreEqual(OrderData?.RentalDate, Order.OrderData.RentalDate);
-        Assert.AreEqual(OrderData?.ReturnDate, Order.OrderData.ReturnDate);
+        Assert.AreEqual(OrderData?.RentalPeriod, Order.OrderData.RentalPeriod);
     }
     
     [TestMethod]

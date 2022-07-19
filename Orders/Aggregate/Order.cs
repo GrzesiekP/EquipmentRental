@@ -4,7 +4,7 @@ using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Aggregate
 {

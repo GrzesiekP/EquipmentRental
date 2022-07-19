@@ -1,9 +1,8 @@
-﻿// ReSharper disable ConvertToPrimaryConstructor
-namespace Orders.ValueObjects
+﻿namespace Orders.Models.ValueObjects
 {
-    public record EquipmentItem
+    public record EquipmentType
     {
-        public EquipmentItem(string equipmentTypeCode, decimal rentalPrice)
+        public EquipmentType(string equipmentTypeCode, decimal rentalPrice)
         {
             EquipmentTypeCode = equipmentTypeCode;
             RentalPrice = rentalPrice;
