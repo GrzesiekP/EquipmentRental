@@ -6,7 +6,8 @@
         WaitingForApproval = 2,
         Approved = 4,
         Paid = 8,
-        InRealisation = 16,
-        Completed = 32
+        PartiallyPaid = 16,
+        InRealisation = 32,
+        Completed = 64
     }
 }

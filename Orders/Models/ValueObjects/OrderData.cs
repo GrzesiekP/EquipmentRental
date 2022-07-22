@@ -16,9 +16,10 @@ namespace Orders.Models.ValueObjects
         public List<EquipmentItem> EquipmentItems { get; }
         public RentalPeriod RentalPeriod { get; }
 
-        public decimal CalculateTotalPrice()
+        public Money CalculateTotalPrice()
         {
-            return EquipmentItems.Sum(i => i.Type.RentalPrice) * RentalDays();
+            var totalAmount = EquipmentItems.Sum(i => i.Type.RentalPrice.Amount);
+            return new Money(totalAmount * RentalDays());
         }
 
         public int RentalDays()

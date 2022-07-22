@@ -54,7 +54,7 @@ namespace EquipmentRental.WebApi.Controllers
 
             var orderData = new OrderData(
                 input.EquipmentItems
-                    .Select(i => new EquipmentItem(new EquipmentType(i.EquipmentTypeCode, i.RentalPrice)))
+                    .Select(i => new EquipmentItem(new EquipmentType(i.EquipmentTypeCode, new Money(i.RentalPrice))))
                     .ToList(),
                 new RentalPeriod(input.RentalDate, input.ReturnDate));
             var command = new SubmitOrder(orderId, orderData, User.Email());
@@ -67,6 +67,17 @@ namespace EquipmentRental.WebApi.Controllers
         public async Task<IActionResult> ApproveRequest([FromBody] Guid orderId)
         {
             var command = new ApproveOrder(orderId);
+
+            await _mediator.Send(command);
+
+            return Accepted();
+        }
+        
+        [HttpPut]
+        [Route("submitPayment")]
+        public async Task<IActionResult> SubmitPayment([FromBody] SubmitPaymentInput input)
+        {
+            var command = new PayOrder(input.OrderId, new Money(input.Amount));
 
             await _mediator.Send(command);
 

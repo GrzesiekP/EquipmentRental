@@ -23,8 +23,8 @@ public class AggregateTestsBase<T> : TestsBase where T: IEvent
     {
         var equipmentItems = new List<EquipmentItem>
         {
-            new( new EquipmentType("TYPE_1", 15)),
-            new(new EquipmentType("TYPE_2", 60))
+            new( new EquipmentType("TYPE_1", new Money(15))),
+            new(new EquipmentType("TYPE_2", new Money(60)))
         };
         OrderData = new OrderData(equipmentItems, new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(3)));
         UserEmail = "user@gmail.com";

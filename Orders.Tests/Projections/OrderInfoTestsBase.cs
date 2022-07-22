@@ -23,7 +23,7 @@ public class OrderInfoTestsBase : TestsBase
         
         var items = new List<EquipmentItem>
         {
-            new(new EquipmentType("CODE1", 10m))
+            new(new EquipmentType("CODE1", new Money(10m)))
         };
         OrderData = new OrderData(
             items,

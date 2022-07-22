@@ -5,6 +5,7 @@ using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
+using Orders.Models.Entities;
 using Orders.Models.ValueObjects;
 
 namespace Orders.Aggregate
@@ -14,6 +15,7 @@ namespace Orders.Aggregate
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
+        public OrderPayment OrderPayment { get; private set; }
 
         // Required for event store
         // ReSharper disable once UnusedMember.Global
@@ -71,10 +73,16 @@ namespace Orders.Aggregate
         // Admin: zgłoś, że opłacono
         public void PayOrder(PayOrder command)
         {
-            var orderPaid = new OrderPaid();
-            
-            PublishEvent(orderPaid);
-            Apply(orderPaid);
+            if (OrderPayment.IsEnoughForFullPayment(command.Amount))
+            {
+                var orderFullyPaid = new OrderFullyPaid(command.Amount);
+                PublishEvent(orderFullyPaid);
+                Apply(orderFullyPaid);
+            }
+
+            var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
+            PublishEvent(orderPartiallyPaid);
+            Apply(orderPartiallyPaid);
         }
         
         // Auto: Zarezerwuj sprzęt
@@ -125,6 +133,7 @@ namespace Orders.Aggregate
             ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
+            OrderPayment = new OrderPayment(orderSubmitted.OrderData.CalculateTotalPrice());
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
             Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
@@ -148,11 +157,22 @@ namespace Orders.Aggregate
             Console.WriteLine($"{nameof(OrderApproved)}. Order:{Id}");
         }
         
-        private void Apply(OrderPaid orderPaid)
+        private void Apply(OrderFullyPaid orderFullyPaid)
         {
             Version++;
             
+            OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+        }
+        
+        private void Apply(OrderPartiallyPaid orderFullyPaid)
+        {
+            Version++;
+            
+            OrderPayment.Pay(orderFullyPaid.Amount);
+            Status = OrderStatus.PartiallyPaid;
             
             Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
         }

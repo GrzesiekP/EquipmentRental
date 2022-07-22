@@ -48,7 +48,7 @@ public class OrderSubmittedEventHandlerTests : TestsBase
     {
         var items = new List<EquipmentItem>
         {
-            new(new EquipmentType("CODE1", 10m))
+            new(new EquipmentType("CODE1", new Money(10m)))
         };
         var orderData = new OrderData(
             items,

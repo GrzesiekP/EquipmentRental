@@ -21,8 +21,8 @@ public class OrderDataTests
 
         var items = new List<EquipmentItem>
         {
-            new(new EquipmentType("CODE1", 10m)),
-            new(new EquipmentType("CODE2", 90m)),
+            new(new EquipmentType("CODE1", new Money(10m))),
+            new(new EquipmentType("CODE2", new Money(90m)))
         };
         
         _orderData = new OrderData(
@@ -34,7 +34,7 @@ public class OrderDataTests
     [TestMethod]
     public void CalculateRentalDaysTests()
     {
-        var expectedPrice = _orderData.EquipmentItems.Sum(i => i.Type.RentalPrice) * ExpectedRentalDays;
-        Assert.AreEqual(expectedPrice, _orderData.CalculateTotalPrice());
+        var expectedPrice = _orderData.EquipmentItems.Sum(i => i.Type.RentalPrice.Amount) * ExpectedRentalDays;
+        Assert.AreEqual(expectedPrice, _orderData.CalculateTotalPrice().Amount);
     }
 }

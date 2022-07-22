@@ -2,13 +2,13 @@
 {
     public record EquipmentType
     {
-        public EquipmentType(string equipmentTypeCode, decimal rentalPrice)
+        public EquipmentType(string equipmentTypeCode, Money rentalPrice)
         {
             EquipmentTypeCode = equipmentTypeCode;
             RentalPrice = rentalPrice;
         }
         
         public string EquipmentTypeCode { get; }
-        public decimal RentalPrice { get; }
+        public Money RentalPrice { get; }
     }
 }
