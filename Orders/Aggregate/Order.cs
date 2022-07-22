@@ -79,10 +79,12 @@ namespace Orders.Aggregate
                 PublishEvent(orderFullyPaid);
                 Apply(orderFullyPaid);
             }
-
-            var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
-            PublishEvent(orderPartiallyPaid);
-            Apply(orderPartiallyPaid);
+            else
+            {
+                var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
+                PublishEvent(orderPartiallyPaid);
+                Apply(orderPartiallyPaid);
+            }
         }
         
         // Auto: Zarezerwuj sprzęt

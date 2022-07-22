@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Commands;
 using Orders.Events;
 
-namespace Orders.Tests.Aggregate;
+namespace Orders.Tests.Aggregate.Approving;
 
 [TestClass]
 public class WhenApprovingOrderNotWaitingForApproval : AggregateTestsBase<OrderApproved>

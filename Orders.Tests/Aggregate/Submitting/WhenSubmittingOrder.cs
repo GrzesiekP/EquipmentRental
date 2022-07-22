@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
 
-namespace Orders.Tests.Aggregate;
+namespace Orders.Tests.Aggregate.Submitting;
 
 [TestClass]
 public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>

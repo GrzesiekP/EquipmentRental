@@ -11,6 +11,7 @@ namespace Orders.Models.ValueObjects
         public OrderData(List<EquipmentItem> equipmentItems, RentalPeriod rentalPeriod)
         {
             EquipmentItems = equipmentItems.AssertNotNullOrEmpty(nameof(equipmentItems));
+            RentalPeriod = rentalPeriod;
         }
         
         public List<EquipmentItem> EquipmentItems { get; }

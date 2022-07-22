@@ -3,7 +3,7 @@ using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
 
-namespace Orders.Tests.Aggregate;
+namespace Orders.Tests.Aggregate.RequestingForApproval;
 
 [TestClass]
 public class WhenRequestingApproval : AggregateTestsBase<ApprovalRequested>

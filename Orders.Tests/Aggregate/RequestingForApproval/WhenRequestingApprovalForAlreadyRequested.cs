@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Commands;
 using Orders.Events;
 
-namespace Orders.Tests.Aggregate;
+namespace Orders.Tests.Aggregate.RequestingForApproval;
 
 [TestClass]
 public class WhenRequestingApprovalForAlreadyRequested : AggregateTestsBase<ApprovalRequested>
