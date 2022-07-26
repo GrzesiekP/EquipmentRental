@@ -187,6 +187,8 @@ namespace Orders.Aggregate
             {
                 equipmentItem.ReserveFor(OrderData.RentalPeriod);
             }
+
+            Status = OrderStatus.Reserved;
             
             Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
         }
