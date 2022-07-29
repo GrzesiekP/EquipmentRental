@@ -14,6 +14,7 @@ using Orders.Aggregate;
 using Orders.CommandHandlers;
 using Orders.Config;
 using Orders.EventStore;
+using Persistence;
 
 namespace EquipmentRental.WebApi
 {
@@ -50,7 +51,9 @@ namespace EquipmentRental.WebApi
                 opt.ConfigureProjections();
             });
             services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
-
+            
+            services.RegisterPersistenceModule(new PersistenceConfig(Configuration));
+            
             services
                 .AddAuthentication(opt =>
                 {

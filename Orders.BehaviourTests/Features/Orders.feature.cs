@@ -28,7 +28,7 @@ namespace Orders.BehaviourTests.Features
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Orders.feature"
+#line 1 "Orders.Feature"
 #line hidden
         
         public OrdersFeature(OrdersFeature.FixtureData fixtureData, Orders_BehaviourTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
