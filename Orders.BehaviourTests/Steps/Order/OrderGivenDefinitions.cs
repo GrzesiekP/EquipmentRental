@@ -28,6 +28,12 @@ public sealed partial class OrderStepsDefinitions
         };
     }
     
+    [Given(@"equipment is no longer available")]
+    public void GivenEquipmentIsNoLongerAvailable()
+    {
+        _orderData.EquipmentItems.ForEach(e => e.ReserveFor(_orderData.RentalPeriod));
+    }
+    
     [Given(@"there is (.*) equipments of type (.*) which rental price is (.*)")]
     public void GivenEquipmentTypeIs(int numberOfEquipment, string type, decimal price)
     {
@@ -70,5 +76,12 @@ public sealed partial class OrderStepsDefinitions
     {
         GivenTheOrderIsReserved();
         _order.RentEquipment(new RentEquipment());
+    }
+
+    [Given(@"the order is completed")]
+    public void GivenTheOrderIsCompleted()
+    {
+        GivenTheOrderIsInRealisation();
+        _order.ReturnEquipment(new ReturnEquipment());
     }
 }

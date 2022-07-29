@@ -15,6 +15,7 @@ public partial class OrderStepsDefinitions
     };
     private OrderData _orderData;
     private Aggregate.Order _order;
+    private Action _action;
     
     public OrderStepsDefinitions(ScenarioContext scenarioContext)
     {

@@ -21,7 +21,7 @@ public sealed partial class OrderStepsDefinitions
     [When("reserving ordered equipment")]
     public void WhenReservingEquipment()
     {
-        _order.ReserveEquipment(new ReserveEquipment());
+        _action = () => _order.ReserveEquipment(new ReserveEquipment());
     }
     
     [When("returning equipment")]

@@ -68,7 +68,11 @@ namespace Orders.Aggregate
             
             PublishEvent(requestApproved);
             Apply(requestApproved);
+            
+            // potem początkowa rezerwacja np. 24h
         }
+        
+        // auto: minął czas rezerwacji
         
         // Admin: zgłoś, że opłacono
         public void PayOrder(PayOrder command)
