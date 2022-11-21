@@ -24,6 +24,7 @@ namespace Core.EventStore
 
         public async Task Add(T aggregate)
         {
+            Console.WriteLine($"{nameof(AggregateRepository<T>)} saving {aggregate.GetType().Name} aggregate");
             await Store(aggregate);
         }
 

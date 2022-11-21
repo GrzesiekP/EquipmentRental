@@ -52,7 +52,7 @@ namespace EquipmentRental.WebApi.Controllers
         {
             var orderId = Guid.NewGuid();
 
-            ValidateIfEquipmentIsAvailable();
+            // ValidateIfEquipmentIsAvailable();
 
             var equipmentItems = new Dictionary<string, int>();
             var equipmentTypes = input.EquipmentItems.GroupBy(x => x.EquipmentTypeCode);
@@ -69,6 +69,7 @@ namespace EquipmentRental.WebApi.Controllers
                 );
             
             var command = new SubmitOrder(orderId, orderData, User.Email());
+            Console.WriteLine($"{nameof(OrderController)} publishing {nameof(SubmitOrder)}");
             await _mediator.Send(command);
 
             return Ok(orderId);
@@ -95,6 +96,7 @@ namespace EquipmentRental.WebApi.Controllers
         {
             var command = new PayOrder(input.OrderId, new Money(input.Amount));
 
+            // TODO: Handler not defined
             await _mediator.Send(command);
 
             return Accepted();
