@@ -1,4 +1,4 @@
-﻿namespace Equipemnts;
+﻿namespace Equipment.Models.ValueObjects;
 
 public record RentalPeriod
 {

@@ -1,4 +1,6 @@
-﻿namespace Equipemnts;
+﻿using Equipment.Models.ValueObjects;
+
+namespace Equipment;
 
 public interface IEquipmentService
 {

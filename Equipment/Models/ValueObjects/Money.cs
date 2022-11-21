@@ -1,4 +1,4 @@
-﻿namespace Equipment
+﻿namespace Equipment.Models.ValueObjects
 {
     public record Money
     {
