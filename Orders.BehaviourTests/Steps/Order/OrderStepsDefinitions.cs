@@ -9,12 +9,11 @@ public partial class OrderStepsDefinitions
     private ScenarioContext _scenarioContext;
     private string _userEmail = "user@example.com";
     private RentalPeriod _rentalPeriod = new(DateTime.Today, DateTime.Today.AddDays(1));
-    private List<EquipmentItem> _equipment = new()
-    {
-        new EquipmentItem(new EquipmentType("NEVIS", new Money(20)))
-    };
+    private IDictionary<string, int> _equipment = new Dictionary<string, int>();
+    private Money _totalPrice = new Money(20);    
     private OrderData _orderData;
     private Aggregate.Order _order;
+    private Action _action;
     
     public OrderStepsDefinitions(ScenarioContext scenarioContext)
     {
@@ -24,7 +23,8 @@ public partial class OrderStepsDefinitions
     
     private void InitializeOrderWithDefaultValues()
     {
-        _orderData = new OrderData(_equipment, _rentalPeriod);
+        _equipment["NEVIS"] = 1;
+        _orderData = new OrderData(_equipment, _rentalPeriod, _totalPrice);
         _order = InitializeAggregate();
     }
     

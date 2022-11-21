@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Core.Domain.Aggregates;
 using Core.Domain.Events;
 using Orders.Aggregate.ValueObjects;
@@ -21,11 +20,13 @@ namespace Orders.Aggregate
         // ReSharper disable once UnusedMember.Global
         public Order()
         {
+            Log("Initializing with empty constructor");
         }
 
         // Klient: złóż zamówienie
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
+            Log("initializing on Submit");
             var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
@@ -41,6 +42,7 @@ namespace Orders.Aggregate
         // auto: wyślij prośbę o akceptację
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
+            Log($"handling {nameof(RequestOrderApproval)}");
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
@@ -57,6 +59,7 @@ namespace Orders.Aggregate
         // Admin: potwierdź zamówienie
         public void Approve(ApproveOrder approveOrder)
         {
+            Log($"handling {nameof(ApproveOrder)}");
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
@@ -69,7 +72,7 @@ namespace Orders.Aggregate
             PublishEvent(requestApproved);
             Apply(requestApproved);
         }
-        
+
         // Admin: zgłoś, że opłacono
         public void PayOrder(PayOrder command)
         {
@@ -86,43 +89,10 @@ namespace Orders.Aggregate
                 Apply(orderPartiallyPaid);
             }
         }
-        
-        // Auto: Zarezerwuj sprzęt
-        public void ReserveEquipment(ReserveEquipment command)
-        {
-            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
-            {
-                var equipmentReserved = new EquipmentReserved();
-                
-                PublishEvent(equipmentReserved);
-                Apply(equipmentReserved);
-            }
-
-            // jeśli minął czas na wpłatę powiadom, że sprzętu już nie ma
-            
-            // jeśli nie minął, throw
-        }
-        
-        // Admin: wydaj sprzęt
-        public void RentEquipment(RentEquipment command)
-        {
-            var equipmentRent = new EquipmentRent();
-            
-            PublishEvent(equipmentRent);
-            Apply(equipmentRent);
-        }
-        
-        // Admin: zgłoś zwrot sprzętu
-        public void ReturnEquipment(ReturnEquipment command)
-        {
-            var equipmentReturned = new EquipmentReturned();
-            
-            PublishEvent(equipmentReturned);
-            Apply(equipmentReturned);
-        }
 
         private void PublishEvent(IEvent eventToPublish)
         {
+            Log($"publishing {eventToPublish.GetType().Name}");
             Enqueue(eventToPublish);
         }
 
@@ -135,10 +105,10 @@ namespace Orders.Aggregate
             ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
-            OrderPayment = new OrderPayment(orderSubmitted.OrderData.CalculateTotalPrice());
+            OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
+            LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -147,7 +117,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
+            LogApplyMethod(approvalRequested);
         }
         
         private void Apply(OrderApproved orderApproved)
@@ -156,7 +126,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(OrderApproved)}. Order:{Id}");
+            Console.WriteLine($"{nameof(Order)}: {nameof(OrderApproved)}. Order:{Id}");
         }
         
         private void Apply(OrderFullyPaid orderFullyPaid)
@@ -166,7 +136,7 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Console.WriteLine($"{nameof(Order)}: {nameof(OrderFullyPaid)}. Order:{Id}");
         }
         
         private void Apply(OrderPartiallyPaid orderFullyPaid)
@@ -176,51 +146,18 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            LogApplyMethod(orderFullyPaid);
         }
-        
-        private void Apply(EquipmentReserved equipmentReserved)
-        {
-            Version++;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.ReserveFor(OrderData.RentalPeriod);
-            }
 
-            Status = OrderStatus.Reserved;
-            
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
-        }
-        
-        private void Apply(EquipmentRent equipmentRent)
+        private void LogApplyMethod(IEvent e)
         {
-            Version++;
-
-            Status = OrderStatus.InRealisation;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.Rent();
-            }
-            
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+            Log($"{e.GetType().Name}. Order:{Id}");
         }
-        
-        private void Apply(EquipmentReturned equipmentReturned)
-        {
-            Version++;
-
-            Status = OrderStatus.Completed;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.Release();
-            }
-            
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
-        }
-        
         #endregion
+
+        private static void Log(string message)
+        {
+            Console.WriteLine($"{nameof(Order)}: {message}");
+        }
     }
 }

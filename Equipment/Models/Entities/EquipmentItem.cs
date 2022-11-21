@@ -1,12 +1,9 @@
 ﻿// ReSharper disable ConvertToPrimaryConstructor
 
-using System.Collections.Generic;
-using System.Linq;
 using Core.Domain.Models;
-using Orders.Aggregate.ValueObjects;
-using Orders.Models.ValueObjects;
+using Equipment.Models.ValueObjects;
 
-namespace Orders.Models.Entities
+namespace Equipment.Models.Entities
 {
     public class EquipmentItem : Entity
     {

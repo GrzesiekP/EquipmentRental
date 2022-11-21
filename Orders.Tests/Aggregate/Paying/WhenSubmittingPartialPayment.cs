@@ -17,7 +17,7 @@ public class WhenSubmittingPartialPayment : AggregateTestsBase<OrderPartiallyPai
     {
         base.Given();
 
-        var halfOfAmount = Order.OrderData.CalculateTotalPrice() / 2;
+        var halfOfAmount = Order.OrderData.TotalPrice / 2;
         _paymentAmount = halfOfAmount;
     }
 

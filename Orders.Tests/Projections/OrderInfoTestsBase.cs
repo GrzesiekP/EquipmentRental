@@ -21,13 +21,15 @@ public class OrderInfoTestsBase : TestsBase
 
         Projection = new OrderInfo();
         
-        var items = new List<EquipmentItem>
+        var equipmentItems = new Dictionary<string, int>
         {
-            new(new EquipmentType("CODE1", new Money(10m)))
+            { "TYPE_1", 1 },
+            { "TYPE_2", 1 },
         };
         OrderData = new OrderData(
-            items,
-            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)));
+            equipmentItems,
+            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)),
+            60);
         OrderId = Guid.NewGuid();
         UserEmail = "xd@xd.pl";
     }

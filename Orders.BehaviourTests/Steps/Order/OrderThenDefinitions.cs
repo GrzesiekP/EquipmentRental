@@ -17,15 +17,15 @@ public sealed partial class OrderStepsDefinitions
         _order.OrderData.Should().BeEquivalentTo(_orderData);
     }
 
-    [Then(@"order equipment is reserved for order reservation period")]
-    public void ThenOrderEquipmentIsReservedForOrderReservationPeriod()
+    [Then(@"there is no exception")]
+    public void ThenThereIsNoException()
     {
-        _order.OrderData.EquipmentItems.Should().Satisfy(e => e.IsReservedFor(_rentalPeriod));
+        _action();
     }
 
-    [Then(@"equipment is (.*)")]
-    public void ThenEquipmentIsRent(EquipmentStatus equipmentStatus)
+    [Then(@"exception is thrown")]
+    public void ThenExceptionIsThrown()
     {
-        _order.OrderData.EquipmentItems.Should().Satisfy(e => e.Status == equipmentStatus);
+        _action.Should().Throw<Exception>();
     }
 }
