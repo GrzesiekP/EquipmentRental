@@ -46,13 +46,15 @@ public class OrderSubmittedEventHandlerTests : TestsBase
 
     private OrderSubmitted GenerateTestEvent()
     {
-        var items = new List<EquipmentItem>
+        var equipmentItems = new Dictionary<string, int>
         {
-            new(new EquipmentType("CODE1", new Money(10m)))
+            { "TYPE_1", 1 },
+            { "TYPE_2", 1 },
         };
         var orderData = new OrderData(
-            items,
-            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)));
+            equipmentItems,
+            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)),
+            60);
         return new OrderSubmitted(
             _orderId,
             orderData,

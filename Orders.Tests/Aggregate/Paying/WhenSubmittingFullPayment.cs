@@ -17,7 +17,7 @@ public class WhenSubmittingFullPayment : AggregateTestsBase<OrderFullyPaid>
     {
         base.Given();
 
-        _fullPaymentAmount = Order.OrderData.CalculateTotalPrice();
+        _fullPaymentAmount = Order.OrderData.TotalPrice;
     }
 
     protected override void When()

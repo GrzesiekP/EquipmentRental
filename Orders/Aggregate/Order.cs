@@ -90,40 +90,6 @@ namespace Orders.Aggregate
                 Apply(orderPartiallyPaid);
             }
         }
-        
-        // Auto: Zarezerwuj sprzęt
-        public void ReserveEquipment(ReserveEquipment command)
-        {
-            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
-            {
-                var equipmentReserved = new EquipmentReserved();
-                
-                PublishEvent(equipmentReserved);
-                Apply(equipmentReserved);
-            }
-
-            // jeśli minął czas na wpłatę powiadom, że sprzętu już nie ma
-            
-            // jeśli nie minął, throw
-        }
-        
-        // Admin: wydaj sprzęt
-        public void RentEquipment(RentEquipment command)
-        {
-            var equipmentRent = new EquipmentRent();
-            
-            PublishEvent(equipmentRent);
-            Apply(equipmentRent);
-        }
-        
-        // Admin: zgłoś zwrot sprzętu
-        public void ReturnEquipment(ReturnEquipment command)
-        {
-            var equipmentReturned = new EquipmentReturned();
-            
-            PublishEvent(equipmentReturned);
-            Apply(equipmentReturned);
-        }
 
         private void PublishEvent(IEvent eventToPublish)
         {
@@ -139,7 +105,7 @@ namespace Orders.Aggregate
             ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
-            OrderPayment = new OrderPayment(orderSubmitted.OrderData.CalculateTotalPrice());
+            OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
             Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
@@ -170,7 +136,7 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Console.WriteLine($"{nameof(OrderFullyPaid)}. Order:{Id}");
         }
         
         private void Apply(OrderPartiallyPaid orderFullyPaid)
@@ -180,51 +146,8 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Console.WriteLine($"{nameof(OrderPartiallyPaid)}. Order:{Id}");
         }
-        
-        private void Apply(EquipmentReserved equipmentReserved)
-        {
-            Version++;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.ReserveFor(OrderData.RentalPeriod);
-            }
-
-            Status = OrderStatus.Reserved;
-            
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
-        }
-        
-        private void Apply(EquipmentRent equipmentRent)
-        {
-            Version++;
-
-            Status = OrderStatus.InRealisation;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.Rent();
-            }
-            
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
-        }
-        
-        private void Apply(EquipmentReturned equipmentReturned)
-        {
-            Version++;
-
-            Status = OrderStatus.Completed;
-            
-            foreach (var equipmentItem in OrderData.EquipmentItems)
-            {
-                equipmentItem.Release();
-            }
-            
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
-        }
-        
         #endregion
     }
 }

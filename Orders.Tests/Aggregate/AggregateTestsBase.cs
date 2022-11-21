@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Domain.Events;
 using Orders.Aggregate;
-using Orders.Models.Entities;
 using Orders.Models.ValueObjects;
 using Tests.Core;
 
@@ -21,12 +20,13 @@ public class AggregateTestsBase<T> : TestsBase where T: IEvent
     
     protected override void Given()
     {
-        var equipmentItems = new List<EquipmentItem>
+        var equipmentItems = new Dictionary<string, int>
         {
-            new( new EquipmentType("TYPE_1", new Money(15))),
-            new(new EquipmentType("TYPE_2", new Money(60)))
+            { "TYPE_1", 1 },
+            { "TYPE_2", 1 },
         };
-        OrderData = new OrderData(equipmentItems, new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(3)));
+        var totalPrice = 60;
+        OrderData = new OrderData(equipmentItems, new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(3)), totalPrice);
         UserEmail = "user@gmail.com";
         Order = InitializeAggregate();
     }

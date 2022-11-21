@@ -1,4 +1,6 @@
-﻿namespace Orders.Models.ValueObjects
+﻿using Equipemnts;
+
+namespace Equipment
 {
     public record EquipmentType
     {

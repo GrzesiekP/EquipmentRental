@@ -8,25 +8,13 @@ public sealed partial class OrderStepsDefinitions
     [When("order is submitted")]
     public void WhenOrderIsSubmitted()
     {
-        _orderData = new OrderData(_equipment, _rentalPeriod);
-        _order = InitializeAggregate();
+        _orderData = new OrderData(_equipment, _rentalPeriod, _totalPrice);
+        _action = () => _order = InitializeAggregate();
     }
     
-    [When("renting equipment")]
-    public void WhenRentingEquipment()
+    [When("order is approved")]
+    public void WhenOrderIsApproved()
     {
-        _order.RentEquipment(new RentEquipment());
-    }
-    
-    [When("reserving ordered equipment")]
-    public void WhenReservingEquipment()
-    {
-        _action = () => _order.ReserveEquipment(new ReserveEquipment());
-    }
-    
-    [When("returning equipment")]
-    public void WhenReturningEquipment()
-    {
-        _order.ReturnEquipment(new ReturnEquipment());
+        _action = () => _order.Approve(new ApproveOrder(_order.Id));
     }
 }
