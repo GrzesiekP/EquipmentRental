@@ -3,9 +3,9 @@ using Core.Domain.Commands;
 
 namespace Orders.Commands
 {
-    public class ReserveEquipment : ICommand
+    public class ConfirmEquipmentRent : ICommand
     {
-        public ReserveEquipment(Guid orderId)
+        public ConfirmEquipmentRent(Guid orderId)
         {
             OrderId = orderId;
         }

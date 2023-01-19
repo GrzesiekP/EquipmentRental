@@ -1,4 +1,4 @@
-﻿using Orders.Models.ValueObjects;
+﻿using Core.Models;
 
 namespace Orders.Models.Entities
 {

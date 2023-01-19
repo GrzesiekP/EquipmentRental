@@ -1,8 +1,8 @@
+using Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
-using Orders.Models.ValueObjects;
 
 namespace Orders.Tests.Aggregate.Paying;
 
@@ -22,8 +22,8 @@ public class WhenSubmittingFullPayment : AggregateTestsBase<OrderFullyPaid>
 
     protected override void When()
     {
-        var payOrder = new PayOrder(OrderId, _fullPaymentAmount);
-        Order.PayOrder(payOrder);
+        var payOrder = new ConfirmOrderPayment(OrderId, _fullPaymentAmount);
+        Order.ConfirmPayment(payOrder);
         
         _orderFullyPaid = GetEvent();
     }

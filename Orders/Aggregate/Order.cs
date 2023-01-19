@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Core.Domain.Aggregates;
-using Core.Domain.Events;
+using Core.Logging;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
@@ -11,6 +12,8 @@ namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
+        private AggregateLogger<Order, Guid> Logger => new(Id);
+
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
@@ -20,13 +23,10 @@ namespace Orders.Aggregate
         // ReSharper disable once UnusedMember.Global
         public Order()
         {
-            Log("Initializing with empty constructor");
         }
 
-        // Klient: złóż zamówienie
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
-            Log("initializing on Submit");
             var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
@@ -39,10 +39,10 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
-        // auto: wyślij prośbę o akceptację
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
-            Log($"handling {nameof(RequestOrderApproval)}");
+            Logger.LogCommand(requestOrderApproval);
+            
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
@@ -52,14 +52,16 @@ namespace Orders.Aggregate
             
             var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
+            Logger.LogPublishEvent(approvalRequested);
+            
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
 
-        // Admin: potwierdź zamówienie
         public void Approve(ApproveOrder approveOrder)
         {
-            Log($"handling {nameof(ApproveOrder)}");
+            Logger.LogCommand(approveOrder);
+            
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
@@ -69,31 +71,63 @@ namespace Orders.Aggregate
             
             var requestApproved = new OrderApproved(approveOrder.OrderId);
             
+            Logger.LogPublishEvent(requestApproved);
+            
             PublishEvent(requestApproved);
             Apply(requestApproved);
         }
 
-        // Admin: zgłoś, że opłacono
-        public void PayOrder(PayOrder command)
+        public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
-            if (OrderPayment.IsEnoughForFullPayment(command.Amount))
+            Logger.LogCommand(confirmOrderPayment);
+            
+            if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
             {
-                var orderFullyPaid = new OrderFullyPaid(command.Amount);
+                var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderFullyPaid);
+                
                 PublishEvent(orderFullyPaid);
                 Apply(orderFullyPaid);
             }
             else
             {
-                var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
+                var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderPartiallyPaid);
+                
                 PublishEvent(orderPartiallyPaid);
                 Apply(orderPartiallyPaid);
             }
         }
-
-        private void PublishEvent(IEvent eventToPublish)
+        
+        public void ReserveEquipment(ReserveEquipment command)
         {
-            Log($"publishing {eventToPublish.GetType().Name}");
-            Enqueue(eventToPublish);
+            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
+            {
+                var equipmentReserved = new EquipmentReserved(Id);
+                
+                PublishEvent(equipmentReserved);
+                Apply(equipmentReserved);
+            }
+
+            // notify admin, that reservation failed
+        }
+        
+        public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
+        {
+            var equipmentRent = new EquipmentRent(Id);
+            
+            PublishEvent(equipmentRent);
+            Apply(equipmentRent);
+        }
+        
+        public void ConfirmEquipmentReturned(ConfirmEquipmentReturned command)
+        {
+            var equipmentReturned = new EquipmentReturned(Id);
+            
+            PublishEvent(equipmentReturned);
+            Apply(equipmentReturned);
         }
 
         #region Apply
@@ -108,7 +142,7 @@ namespace Orders.Aggregate
             OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            LogApplyMethod(orderSubmitted);
+            Logger.LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -117,7 +151,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            LogApplyMethod(approvalRequested);
+            Logger.LogApplyMethod(approvalRequested);
         }
         
         private void Apply(OrderApproved orderApproved)
@@ -126,7 +160,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(Order)}: {nameof(OrderApproved)}. Order:{Id}");
+            Logger.LogApplyMethod(orderApproved);
         }
         
         private void Apply(OrderFullyPaid orderFullyPaid)
@@ -136,28 +170,61 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            Console.WriteLine($"{nameof(Order)}: {nameof(OrderFullyPaid)}. Order:{Id}");
+            Logger.LogApplyMethod(orderFullyPaid);
         }
         
-        private void Apply(OrderPartiallyPaid orderFullyPaid)
+        private void Apply(OrderPartiallyPaid orderPartiallyPaid)
         {
             Version++;
             
-            OrderPayment.Pay(orderFullyPaid.Amount);
+            OrderPayment.Pay(orderPartiallyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            LogApplyMethod(orderFullyPaid);
+            Logger.LogApplyMethod(orderPartiallyPaid);
         }
-
-        private void LogApplyMethod(IEvent e)
+        
+        private void Apply(EquipmentReserved equipmentReserved)
         {
-            Log($"{e.GetType().Name}. Order:{Id}");
+            Version++;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.ReserveFor(OrderData.RentalPeriod);
+            }
+
+            Status = OrderStatus.Reserved;
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
         }
+        
+        private void Apply(EquipmentRent equipmentRent)
+        {
+            Version++;
+
+            Status = OrderStatus.InRealisation;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Rent();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentReturned equipmentReturned)
+        {
+            Version++;
+
+            Status = OrderStatus.Completed;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Return();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
         #endregion
-
-        private static void Log(string message)
-        {
-            Console.WriteLine($"{nameof(Order)}: {message}");
-        }
     }
 }

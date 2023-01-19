@@ -1,4 +1,4 @@
-﻿using Equipment.Models.ValueObjects;
+﻿using Core.Models;
 
 namespace Equipment;
 

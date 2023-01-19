@@ -7,7 +7,8 @@
         Approved = 3,
         PartiallyPaid = 4,
         Paid = 5,
-        InRealisation = 6,
-        Completed = 7
+        Reserved = 6,
+        InRealisation = 7,
+        Completed = 8
     }
 }

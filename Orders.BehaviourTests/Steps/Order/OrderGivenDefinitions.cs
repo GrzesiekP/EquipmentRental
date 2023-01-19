@@ -1,4 +1,7 @@
-﻿using Orders.Commands;
+﻿using Core.Models;
+using Equipment.Models.Entities;
+using Equipment.Models.ValueObjects;
+using Orders.Commands;
 using Orders.Models.ValueObjects;
 
 namespace Orders.BehaviourTests.Steps.Order;
@@ -11,22 +14,30 @@ public sealed partial class OrderStepsDefinitions
         _userEmail = email;
     }
 
+    [Given("the order is submitted")]
+    private void GivenTheOrderIsSubmitted()
+    {
+        _orderData = new OrderData(_equipment, _rentalPeriod);
+        _order = InitializeAggregate();
+    }
+
     [Given("the rental period is (.*) days from today")]
-    public void GivenTheRentalPeriodIs(int rentalDays)
+    public void GivenTheRentalPeriodIsDaysFromToday(int rentalDays)
     {
         _rentalPeriod = new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(rentalDays));
     }
 
     [Given(@"the approval is requested for order")]
-    public void GivenTheApprovalIsRequested()
+    public void GivenTheApprovalIsRequestedForOrder()
     {
+        GivenTheOrderIsSubmitted();
         _order.RequestApproval(new RequestOrderApproval(_order.Id));
     }
     
     [Given(@"the order is approved")]
     public void GivenTheOrderIsApproved()
     {
-        GivenTheApprovalIsRequested();
+        GivenTheApprovalIsRequestedForOrder();
         _order.Approve(new ApproveOrder(_order.Id));
     }
 
@@ -34,15 +45,39 @@ public sealed partial class OrderStepsDefinitions
     public void GivenTheOrderIsFullyPaid()
     {
         GivenTheOrderIsApproved();
-        _order.PayOrder(new PayOrder(_order.Id, _order.OrderPayment.TotalMoney));
+        _order.ConfirmPayment(new ConfirmOrderPayment(_order.Id, _order.OrderPayment.TotalMoney));
     }
-
-    [Given(@"there is (.*) equipments of type (.*)")]
-    public void GivenThereIsEquipmentsOfType(int numberOfItems, string itemType)
+    
+    [Given(@"the order is reserved")]
+    public void GivenTheOrderIsReserved()
     {
-        _equipment = new Dictionary<string, int>()
+        GivenTheOrderIsFullyPaid();
+        _order.ReserveEquipment(new ReserveEquipment(_order.Id));
+    }
+    
+    [Given(@"the order is in realisation")]
+    public void GivenTheOrderIsInRealisation()
+    {
+        GivenTheOrderIsReserved();
+        _order.ConfirmEquipmentRent(new ConfirmEquipmentRent(_order.Id));
+    }
+    
+    [Given(@"there is (.*) equipments of type (.*) which rental price is (.*)")]
+    public void GivenThereIsEquipmentsOfTypeWhichRentalPriceIs(int numberOfEquipment, string type, decimal price)
+    {
+        var equipmentType = new EquipmentType(type, new Money(price));
+        for (var i = 0; i < numberOfEquipment; i++)
         {
-            { itemType, numberOfItems }
+            _equipment.Add(new EquipmentItem(equipmentType));
+        }
+    }
+    
+    [Given("the total equipment price is (.*) per day")]
+    public void GivenTheTotalEquipmentPriceIsPerDay(decimal dailyPrice)
+    {
+        _equipment = new List<EquipmentItem>
+        {
+            new(new EquipmentType("EQ1", new Money(dailyPrice)))
         };
     }
 }

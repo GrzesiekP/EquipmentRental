@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Models;
+using Equipment.Models.ValueObjects;
 using EquipmentRental.WebApi.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orders.Commands;
 using Orders.Models.ValueObjects;
 using Orders.Queries;
+using EquipmentItem = Equipment.Models.Entities.EquipmentItem;
 
 namespace EquipmentRental.WebApi.Controllers
 {
@@ -52,20 +54,13 @@ namespace EquipmentRental.WebApi.Controllers
         {
             var orderId = Guid.NewGuid();
 
-            // ValidateIfEquipmentIsAvailable();
-
-            var equipmentItems = new Dictionary<string, int>();
-            var equipmentTypes = input.EquipmentItems.GroupBy(x => x.EquipmentTypeCode);
-            foreach (var type in equipmentTypes)
-            {
-                equipmentItems[type.Key] = type.Count();
-            }
+            var equipmentItems = input.EquipmentItems.Select(x => new EquipmentItem(
+                new EquipmentType(x.EquipmentTypeCode, x.RentalPrice))).ToList();
 
             var rentalPeriod = new RentalPeriod(input.RentalDate, input.ReturnDate);
             var orderData = new OrderData(
                 equipmentItems,
-                rentalPeriod,
-                new Money(input.EquipmentItems.Sum(item => item.RentalPrice * rentalPeriod.Days))
+                rentalPeriod
                 );
             
             var command = new SubmitOrder(orderId, orderData, User.Email());
@@ -81,6 +76,7 @@ namespace EquipmentRental.WebApi.Controllers
         }
 
         [HttpPut]
+        [Route("approve")]
         public async Task<IActionResult> ApproveRequest([FromBody] Guid orderId)
         {
             var command = new ApproveOrder(orderId);
@@ -91,10 +87,10 @@ namespace EquipmentRental.WebApi.Controllers
         }
         
         [HttpPut]
-        [Route("submitPayment")]
+        [Route("submit-payment")]
         public async Task<IActionResult> SubmitPayment([FromBody] SubmitPaymentInput input)
         {
-            var command = new PayOrder(input.OrderId, new Money(input.Amount));
+            var command = new ConfirmOrderPayment(input.OrderId, new Money(input.Amount));
 
             // TODO: Handler not defined
             await _mediator.Send(command);
