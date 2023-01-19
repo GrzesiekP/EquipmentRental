@@ -81,6 +81,7 @@ namespace EquipmentRental.WebApi.Controllers
         }
 
         [HttpPut]
+        [Route("approve")]
         public async Task<IActionResult> ApproveRequest([FromBody] Guid orderId)
         {
             var command = new ApproveOrder(orderId);
@@ -91,7 +92,7 @@ namespace EquipmentRental.WebApi.Controllers
         }
         
         [HttpPut]
-        [Route("submitPayment")]
+        [Route("submit-payment")]
         public async Task<IActionResult> SubmitPayment([FromBody] SubmitPaymentInput input)
         {
             var command = new ConfirmOrderPayment(input.OrderId, new Money(input.Amount));
