@@ -94,7 +94,7 @@ namespace EquipmentRental.WebApi.Controllers
         [Route("submitPayment")]
         public async Task<IActionResult> SubmitPayment([FromBody] SubmitPaymentInput input)
         {
-            var command = new PayOrder(input.OrderId, new Money(input.Amount));
+            var command = new ConfirmOrderPayment(input.OrderId, new Money(input.Amount));
 
             // TODO: Handler not defined
             await _mediator.Send(command);

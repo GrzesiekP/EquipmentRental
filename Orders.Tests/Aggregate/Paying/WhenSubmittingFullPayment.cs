@@ -22,7 +22,7 @@ public class WhenSubmittingFullPayment : AggregateTestsBase<OrderFullyPaid>
 
     protected override void When()
     {
-        var payOrder = new PayOrder(OrderId, _fullPaymentAmount);
+        var payOrder = new ConfirmOrderPayment(OrderId, _fullPaymentAmount);
         Order.PayOrder(payOrder);
         
         _orderFullyPaid = GetEvent();

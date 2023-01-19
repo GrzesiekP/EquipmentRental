@@ -2,7 +2,7 @@
 
 namespace Orders.Commands
 {
-    public class RentEquipment : ICommand
+    public class ConfirmEquipmentRent : ICommand
     {
         
     }

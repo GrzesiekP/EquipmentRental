@@ -34,7 +34,7 @@ public sealed partial class OrderStepsDefinitions
     public void GivenTheOrderIsFullyPaid()
     {
         GivenTheOrderIsApproved();
-        _order.PayOrder(new PayOrder(_order.Id, _order.OrderPayment.TotalMoney));
+        _order.PayOrder(new ConfirmOrderPayment(_order.Id, _order.OrderPayment.TotalMoney));
     }
 
     [Given(@"there is (.*) equipments of type (.*)")]

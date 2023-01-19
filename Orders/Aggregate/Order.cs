@@ -74,7 +74,7 @@ namespace Orders.Aggregate
         }
 
         // Admin: zgłoś, że opłacono
-        public void PayOrder(PayOrder command)
+        public void PayOrder(ConfirmOrderPayment command)
         {
             if (OrderPayment.IsEnoughForFullPayment(command.Amount))
             {
