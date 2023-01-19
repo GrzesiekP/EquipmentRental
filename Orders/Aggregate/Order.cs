@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Domain.Aggregates;
-using Core.Domain.Events;
+using Core.Logging;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
@@ -11,6 +11,8 @@ namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
+        private readonly AggregateLogger<Order, Guid> _logger;
+
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
@@ -20,18 +22,18 @@ namespace Orders.Aggregate
         // ReSharper disable once UnusedMember.Global
         public Order()
         {
-            Log("Initializing with empty constructor");
         }
 
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
-            Log("initializing on Submit");
             var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
 
         private Order(Guid id, OrderData orderData, string clientEmail)
         {
+            _logger = new AggregateLogger<Order, Guid>(id);
+            
             var orderSubmitted = new OrderSubmitted(id, orderData, clientEmail);
             
             PublishEvent(orderSubmitted);
@@ -40,7 +42,8 @@ namespace Orders.Aggregate
 
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
-            Log($"handling {nameof(RequestOrderApproval)}");
+            _logger.LogCommand(requestOrderApproval);
+            
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
@@ -50,13 +53,16 @@ namespace Orders.Aggregate
             
             var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
+            _logger.LogPublishEvent(approvalRequested);
+            
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
 
         public void Approve(ApproveOrder approveOrder)
         {
-            Log($"handling {nameof(ApproveOrder)}");
+            _logger.LogCommand(approveOrder);
+            
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
@@ -66,30 +72,34 @@ namespace Orders.Aggregate
             
             var requestApproved = new OrderApproved(approveOrder.OrderId);
             
+            _logger.LogPublishEvent(requestApproved);
+            
             PublishEvent(requestApproved);
             Apply(requestApproved);
         }
 
-        public void ConfirmPayment(ConfirmOrderPayment command)
+        public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
-            if (OrderPayment.IsEnoughForFullPayment(command.Amount))
+            _logger.LogCommand(confirmOrderPayment);
+            
+            if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
             {
-                var orderFullyPaid = new OrderFullyPaid(command.Amount);
+                var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
+                
+                _logger.LogPublishEvent(orderFullyPaid);
+                
                 PublishEvent(orderFullyPaid);
                 Apply(orderFullyPaid);
             }
             else
             {
-                var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
+                var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
+                
+                _logger.LogPublishEvent(orderPartiallyPaid);
+                
                 PublishEvent(orderPartiallyPaid);
                 Apply(orderPartiallyPaid);
             }
-        }
-
-        private void PublishEvent(IEvent eventToPublish)
-        {
-            Log($"publishing {eventToPublish.GetType().Name}");
-            Enqueue(eventToPublish);
         }
 
         #region Apply
@@ -104,7 +114,7 @@ namespace Orders.Aggregate
             OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            LogApplyMethod(orderSubmitted);
+            _logger.LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -113,7 +123,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            LogApplyMethod(approvalRequested);
+            _logger.LogApplyMethod(approvalRequested);
         }
         
         private void Apply(OrderApproved orderApproved)
@@ -122,7 +132,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(Order)}: {nameof(OrderApproved)}. Order:{Id}");
+            _logger.LogApplyMethod(orderApproved);
         }
         
         private void Apply(OrderFullyPaid orderFullyPaid)
@@ -132,28 +142,18 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            Console.WriteLine($"{nameof(Order)}: {nameof(OrderFullyPaid)}. Order:{Id}");
+            _logger.LogApplyMethod(orderFullyPaid);
         }
         
-        private void Apply(OrderPartiallyPaid orderFullyPaid)
+        private void Apply(OrderPartiallyPaid orderPartiallyPaid)
         {
             Version++;
             
-            OrderPayment.Pay(orderFullyPaid.Amount);
+            OrderPayment.Pay(orderPartiallyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            LogApplyMethod(orderFullyPaid);
-        }
-
-        private void LogApplyMethod(IEvent e)
-        {
-            Log($"{e.GetType().Name}. Order:{Id}");
+            _logger.LogApplyMethod(orderPartiallyPaid);
         }
         #endregion
-
-        private static void Log(string message)
-        {
-            Console.WriteLine($"{nameof(Order)}: {message}");
-        }
     }
 }
