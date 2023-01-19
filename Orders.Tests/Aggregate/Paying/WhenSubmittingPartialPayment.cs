@@ -24,7 +24,7 @@ public class WhenSubmittingPartialPayment : AggregateTestsBase<OrderPartiallyPai
     protected override void When()
     {
         var payOrder = new ConfirmOrderPayment(OrderId, _paymentAmount);
-        Order.PayOrder(payOrder);
+        Order.ConfirmPayment(payOrder);
         
         _orderPartiallyPaid = GetEvent();
     }

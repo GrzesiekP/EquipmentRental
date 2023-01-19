@@ -23,7 +23,6 @@ namespace Orders.Aggregate
             Log("Initializing with empty constructor");
         }
 
-        // Klient: złóż zamówienie
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
             Log("initializing on Submit");
@@ -39,7 +38,6 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
-        // auto: wyślij prośbę o akceptację
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
             Log($"handling {nameof(RequestOrderApproval)}");
@@ -56,7 +54,6 @@ namespace Orders.Aggregate
             Apply(approvalRequested);
         }
 
-        // Admin: potwierdź zamówienie
         public void Approve(ApproveOrder approveOrder)
         {
             Log($"handling {nameof(ApproveOrder)}");
@@ -73,8 +70,7 @@ namespace Orders.Aggregate
             Apply(requestApproved);
         }
 
-        // Admin: zgłoś, że opłacono
-        public void PayOrder(ConfirmOrderPayment command)
+        public void ConfirmPayment(ConfirmOrderPayment command)
         {
             if (OrderPayment.IsEnoughForFullPayment(command.Amount))
             {
