@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Core.Models;
+using Equipment.Models.Entities;
+using Equipment.Models.ValueObjects;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Orders.Commands;
 using Orders.EventHandlers;
 using Orders.Events;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 using Tests.Core;
 
 namespace Orders.Tests.EventHandlers;
@@ -45,14 +48,14 @@ public class OrderSubmittedEventHandlerTests : TestsBase
 
     private OrderSubmitted GenerateTestEvent()
     {
-        var items = new List<EquipmentItem>
+        var equipmentItems = new List<EquipmentItem>
         {
-            new("CODE1", 10m)
+            new(new EquipmentType("CT NEVIS", 20)),
+            new(new EquipmentType("CT NUPTUSE", 20)),
         };
         var orderData = new OrderData(
-            items,
-            DateTime.Now,
-            DateTime.Now.AddDays(3));
+            equipmentItems,
+            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)));
         return new OrderSubmitted(
             _orderId,
             orderData,

@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Domain.Events;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Events
 {

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Domain.Events;
 using MediatR;
@@ -18,8 +19,10 @@ namespace Orders.EventHandlers
         
         public Task Handle(OrderSubmitted eOrderSubmitted, CancellationToken cancellationToken)
         {
+            Console.WriteLine($"{nameof(OrderSubmittedEventHandler)} handling {nameof(OrderSubmitted)}");
             var requestApproval = new RequestOrderApproval(eOrderSubmitted.OrderId);
 
+            Console.WriteLine($"{nameof(OrderSubmittedEventHandler)} publishing {nameof(RequestOrderApproval)}");
             return _mediator.Send(requestApproval, cancellationToken);
         }
     }

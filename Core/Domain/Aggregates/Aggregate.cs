@@ -19,10 +19,15 @@ namespace Core.Domain.Aggregates
 
             return dequeuedEvents;
         }
-        
-        protected void Enqueue(IEvent eventToPublish)
+
+        private void Enqueue(IEvent eventToPublish)
         {
             _uncommittedEvents.Enqueue(eventToPublish);
+        }
+        
+        protected void PublishEvent(IEvent eventToPublish)
+        {
+            Enqueue(eventToPublish);
         }
     }
 }

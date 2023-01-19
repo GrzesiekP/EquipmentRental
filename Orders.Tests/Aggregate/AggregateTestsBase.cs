@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Domain.Events;
+using Core.Models;
+using Equipment.Models.Entities;
+using Equipment.Models.ValueObjects;
 using Orders.Aggregate;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 using Tests.Core;
 
 namespace Orders.Tests.Aggregate;
@@ -22,10 +25,10 @@ public class AggregateTestsBase<T> : TestsBase where T: IEvent
     {
         var equipmentItems = new List<EquipmentItem>
         {
-            new( "TYPE_1", 15),
-            new("TYPE_2", 60)
+            new(new EquipmentType("CT NEVIS", 20)),
+            new(new EquipmentType("CT NUPTUSE", 20)),
         };
-        OrderData = new OrderData(equipmentItems, DateTime.Today, DateTime.Today.AddDays(3));
+        OrderData = new OrderData(equipmentItems, new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(3)));
         UserEmail = "user@gmail.com";
         Order = InitializeAggregate();
     }

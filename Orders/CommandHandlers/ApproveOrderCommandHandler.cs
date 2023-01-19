@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Domain.Commands;
 using Core.EventStore;
@@ -19,6 +20,7 @@ namespace Orders.CommandHandlers
     
         public async Task<Unit> Handle(ApproveOrder command, CancellationToken cancellationToken)
         {
+            Console.WriteLine($"{nameof(ApproveOrderCommandHandler)} handling {nameof(ApproveOrder)}");
             var order = await _orderEventStoreRepository.Find(command.OrderId);
     
             order.Approve(command);

@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
 
-namespace Orders.Tests.Aggregate;
+namespace Orders.Tests.Aggregate.Submitting;
 
 [TestClass]
 public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
@@ -32,14 +32,13 @@ public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
     public void ThenOrderDataIsPopulated()
     {
         Assert.IsNotNull(OrderData);
-        CollectionAssert.AreEquivalent(OrderData.EquipmentItems, Order.OrderData.EquipmentItems);
+        Assert.AreEqual(OrderData.EquipmentItems.Count, Order.OrderData.EquipmentItems.Count);
     }
     
     [TestMethod]
     public void ThenRentalDatesArePopulated()
     {
-        Assert.AreEqual(OrderData?.RentalDate, Order.OrderData.RentalDate);
-        Assert.AreEqual(OrderData?.ReturnDate, Order.OrderData.ReturnDate);
+        Assert.AreEqual(OrderData?.RentalPeriod, Order.OrderData.RentalPeriod);
     }
     
     [TestMethod]

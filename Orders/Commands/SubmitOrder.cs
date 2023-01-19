@@ -1,7 +1,7 @@
 ﻿using System;
 using Core.Domain.Commands;
 using Core.Extensions;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Commands
 {

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Models;
+using Equipment.Models.Entities;
+using Equipment.Models.ValueObjects;
+using Orders.Models.ValueObjects;
 using Orders.Projections;
-using Orders.ValueObjects;
 using Tests.Core;
 
 namespace Orders.Tests.Projections;
@@ -20,14 +23,14 @@ public class OrderInfoTestsBase : TestsBase
 
         Projection = new OrderInfo();
         
-        var items = new List<EquipmentItem>
+        var equipmentItems = new List<EquipmentItem>
         {
-            new("CODE1", 10m)
+            new(new EquipmentType("CT NEVIS", 20)),
+            new(new EquipmentType("CT NUPTUSE", 20)),
         };
         OrderData = new OrderData(
-            items,
-            DateTime.Now,
-            DateTime.Now.AddDays(3));
+            equipmentItems,
+            new RentalPeriod(DateTime.Now, DateTime.Now.AddDays(3)));
         OrderId = Guid.NewGuid();
         UserEmail = "xd@xd.pl";
     }
