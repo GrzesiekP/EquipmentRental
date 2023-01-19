@@ -1,4 +1,6 @@
-﻿namespace Equipment.Models.ValueObjects;
+﻿using System;
+
+namespace Core.Models;
 
 public record RentalPeriod
 {
@@ -18,6 +20,8 @@ public record RentalPeriod
     }
 
     public TimeSpan Value => ReturnDate - RentalDate;
+    
+    public int Days => (int)Math.Ceiling(Value.TotalDays);
 
     public bool IntersectsWith(RentalPeriod rentalPeriod) =>
         rentalPeriod.RentalDate < ReturnDate || rentalPeriod.ReturnDate > RentalDate;

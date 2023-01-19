@@ -5,7 +5,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Orders.Commands;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace EquipmentRental.WebApi.Tests.OrdersController;
 

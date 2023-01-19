@@ -1,8 +1,8 @@
+using Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
-using Orders.Models.ValueObjects;
 
 namespace Orders.Tests.Aggregate.Paying;
 

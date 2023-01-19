@@ -1,6 +1,7 @@
 ﻿// ReSharper disable ConvertToPrimaryConstructor
 
 using Core.Domain.Models;
+using Core.Models;
 using Equipment.Models.ValueObjects;
 
 namespace Equipment.Models.Entities

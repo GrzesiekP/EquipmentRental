@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Domain.Commands;
-using Orders.Models.ValueObjects;
+using Core.Models;
 
 namespace Orders.Commands
 {

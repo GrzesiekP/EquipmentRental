@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Orders.Models.ValueObjects
+namespace Core.Models
 {
     public record Money
     {

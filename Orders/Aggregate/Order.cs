@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Core.Domain.Aggregates;
 using Core.Logging;
 using Orders.Aggregate.ValueObjects;
@@ -99,6 +100,35 @@ namespace Orders.Aggregate
                 Apply(orderPartiallyPaid);
             }
         }
+        
+        public void ReserveEquipment(ReserveEquipment command)
+        {
+            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
+            {
+                var equipmentReserved = new EquipmentReserved(Id);
+                
+                PublishEvent(equipmentReserved);
+                Apply(equipmentReserved);
+            }
+
+            // notify admin, that reservation failed
+        }
+        
+        public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
+        {
+            var equipmentRent = new EquipmentRent(Id);
+            
+            PublishEvent(equipmentRent);
+            Apply(equipmentRent);
+        }
+        
+        public void ConfirmEquipmentReturned(ConfirmEquipmentReturned command)
+        {
+            var equipmentReturned = new EquipmentReturned(Id);
+            
+            PublishEvent(equipmentReturned);
+            Apply(equipmentReturned);
+        }
 
         #region Apply
         private void Apply(OrderSubmitted orderSubmitted)
@@ -152,6 +182,49 @@ namespace Orders.Aggregate
             
             Logger.LogApplyMethod(orderPartiallyPaid);
         }
+        
+        private void Apply(EquipmentReserved equipmentReserved)
+        {
+            Version++;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.ReserveFor(OrderData.RentalPeriod);
+            }
+
+            Status = OrderStatus.Reserved;
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentRent equipmentRent)
+        {
+            Version++;
+
+            Status = OrderStatus.InRealisation;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Rent();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentReturned equipmentReturned)
+        {
+            Version++;
+
+            Status = OrderStatus.Completed;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Return();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
         #endregion
     }
 }
