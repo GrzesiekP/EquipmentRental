@@ -1,5 +1,4 @@
-﻿using Orders.Models.Entities;
-using Orders.Models.ValueObjects;
+﻿using Orders.Models.ValueObjects;
 
 namespace Orders.BehaviourTests.Steps.Order;
 
@@ -10,7 +9,7 @@ public partial class OrderStepsDefinitions
     private string _userEmail = "user@example.com";
     private RentalPeriod _rentalPeriod = new(DateTime.Today, DateTime.Today.AddDays(1));
     private IDictionary<string, int> _equipment = new Dictionary<string, int>();
-    private Money _totalPrice = new Money(20);    
+    private readonly Money _totalPrice = new Money(20);    
     private OrderData _orderData;
     private Aggregate.Order _order;
     private Action _action;

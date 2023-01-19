@@ -6,7 +6,7 @@ namespace Orders.BehaviourTests.Steps.Order;
 public sealed partial class OrderStepsDefinitions
 {
     [Then("order status is (.*)")]
-    public void ThenOrderShouldBeInStatus(OrderStatus status)
+    public void ThenOrderStatusIs(OrderStatus status)
     {
         _order.Status.Should().Be(status);
     }

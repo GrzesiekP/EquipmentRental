@@ -120,7 +120,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.And("the rental period is 3 days from today", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 9
- testRunner.When("order is submitted", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("client submits an order", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 10
  testRunner.Then("there is no exception", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -169,7 +169,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("the approval is requested for order", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 17
- testRunner.When("order is approved", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("admin approves the order", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 18
  testRunner.Then("there is no exception", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");

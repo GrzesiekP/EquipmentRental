@@ -12,13 +12,13 @@ public sealed partial class OrderStepsDefinitions
     }
 
     [Given("the rental period is (.*) days from today")]
-    public void GivenTheRentalPeriodIs(int rentalDays)
+    public void GivenTheRentalPeriodIsDaysFromToday(int rentalDays)
     {
         _rentalPeriod = new RentalPeriod(DateTime.Today, DateTime.Today.AddDays(rentalDays));
     }
 
     [Given(@"the approval is requested for order")]
-    public void GivenTheApprovalIsRequested()
+    public void GivenTheApprovalIsRequestedForOrder()
     {
         _order.RequestApproval(new RequestOrderApproval(_order.Id));
     }
@@ -26,7 +26,7 @@ public sealed partial class OrderStepsDefinitions
     [Given(@"the order is approved")]
     public void GivenTheOrderIsApproved()
     {
-        GivenTheApprovalIsRequested();
+        GivenTheApprovalIsRequestedForOrder();
         _order.Approve(new ApproveOrder(_order.Id));
     }
 
@@ -40,7 +40,7 @@ public sealed partial class OrderStepsDefinitions
     [Given(@"there is (.*) equipments of type (.*)")]
     public void GivenThereIsEquipmentsOfType(int numberOfItems, string itemType)
     {
-        _equipment = new Dictionary<string, int>()
+        _equipment = new Dictionary<string, int>
         {
             { itemType, numberOfItems }
         };

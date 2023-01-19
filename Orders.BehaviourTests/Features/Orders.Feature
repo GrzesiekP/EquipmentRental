@@ -6,13 +6,13 @@ Scenario: Submit a valid order
 	Given the user email is user@example.com
 	And there is 2 equipments of type CT
 	And the rental period is 3 days from today
-	When order is submitted
+	When client submits an order
 	Then there is no exception
 	Then order status is submitted
 	And order data should be the same as in input
 	
-@Approving
+@Approval
 Scenario: Approving order
 	Given the approval is requested for order
-	When order is approved
+	When admin approves the order
 	Then there is no exception
