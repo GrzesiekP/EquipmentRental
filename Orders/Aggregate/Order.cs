@@ -11,7 +11,7 @@ namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
-        private readonly AggregateLogger<Order, Guid> _logger;
+        private AggregateLogger<Order, Guid> Logger => new(Id);
 
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
@@ -32,8 +32,6 @@ namespace Orders.Aggregate
 
         private Order(Guid id, OrderData orderData, string clientEmail)
         {
-            _logger = new AggregateLogger<Order, Guid>(id);
-            
             var orderSubmitted = new OrderSubmitted(id, orderData, clientEmail);
             
             PublishEvent(orderSubmitted);
@@ -42,7 +40,7 @@ namespace Orders.Aggregate
 
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
-            _logger.LogCommand(requestOrderApproval);
+            Logger.LogCommand(requestOrderApproval);
             
             if (Status != OrderStatus.Submitted)
             {
@@ -53,7 +51,7 @@ namespace Orders.Aggregate
             
             var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
-            _logger.LogPublishEvent(approvalRequested);
+            Logger.LogPublishEvent(approvalRequested);
             
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
@@ -61,7 +59,7 @@ namespace Orders.Aggregate
 
         public void Approve(ApproveOrder approveOrder)
         {
-            _logger.LogCommand(approveOrder);
+            Logger.LogCommand(approveOrder);
             
             if (Status != OrderStatus.WaitingForApproval)
             {
@@ -72,7 +70,7 @@ namespace Orders.Aggregate
             
             var requestApproved = new OrderApproved(approveOrder.OrderId);
             
-            _logger.LogPublishEvent(requestApproved);
+            Logger.LogPublishEvent(requestApproved);
             
             PublishEvent(requestApproved);
             Apply(requestApproved);
@@ -80,13 +78,13 @@ namespace Orders.Aggregate
 
         public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
-            _logger.LogCommand(confirmOrderPayment);
+            Logger.LogCommand(confirmOrderPayment);
             
             if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
             {
                 var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
                 
-                _logger.LogPublishEvent(orderFullyPaid);
+                Logger.LogPublishEvent(orderFullyPaid);
                 
                 PublishEvent(orderFullyPaid);
                 Apply(orderFullyPaid);
@@ -95,7 +93,7 @@ namespace Orders.Aggregate
             {
                 var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
                 
-                _logger.LogPublishEvent(orderPartiallyPaid);
+                Logger.LogPublishEvent(orderPartiallyPaid);
                 
                 PublishEvent(orderPartiallyPaid);
                 Apply(orderPartiallyPaid);
@@ -114,7 +112,7 @@ namespace Orders.Aggregate
             OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            _logger.LogApplyMethod(orderSubmitted);
+            Logger.LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -123,7 +121,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            _logger.LogApplyMethod(approvalRequested);
+            Logger.LogApplyMethod(approvalRequested);
         }
         
         private void Apply(OrderApproved orderApproved)
@@ -132,7 +130,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.Approved;
             
-            _logger.LogApplyMethod(orderApproved);
+            Logger.LogApplyMethod(orderApproved);
         }
         
         private void Apply(OrderFullyPaid orderFullyPaid)
@@ -142,7 +140,7 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            _logger.LogApplyMethod(orderFullyPaid);
+            Logger.LogApplyMethod(orderFullyPaid);
         }
         
         private void Apply(OrderPartiallyPaid orderPartiallyPaid)
@@ -152,7 +150,7 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderPartiallyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            _logger.LogApplyMethod(orderPartiallyPaid);
+            Logger.LogApplyMethod(orderPartiallyPaid);
         }
         #endregion
     }
