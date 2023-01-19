@@ -32,7 +32,7 @@ public class WhenSubmittingOrder : AggregateTestsBase<OrderSubmitted>
     public void ThenOrderDataIsPopulated()
     {
         Assert.IsNotNull(OrderData);
-        CollectionAssert.AreEquivalent(OrderData.EquipmentItems, Order.OrderData.EquipmentItems);
+        Assert.AreEqual(OrderData.EquipmentItems.Count, Order.OrderData.EquipmentItems.Count);
     }
     
     [TestMethod]

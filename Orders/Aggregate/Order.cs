@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Core.Domain.Aggregates;
-using Core.Domain.Events;
+using Core.Logging;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
@@ -12,6 +12,8 @@ namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
+        private AggregateLogger<Order, Guid> Logger => new(Id);
+
         public OrderStatus Status { get; private set; }
         public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
@@ -23,7 +25,6 @@ namespace Orders.Aggregate
         {
         }
 
-        // Klient: złóż zamówienie
         public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
             var order = new Order(orderId, orderData, clientEmail);
@@ -38,9 +39,10 @@ namespace Orders.Aggregate
             Apply(orderSubmitted);
         }
 
-        // auto: wyślij prośbę o akceptację
         public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
+            Logger.LogCommand(requestOrderApproval);
+            
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
@@ -50,13 +52,16 @@ namespace Orders.Aggregate
             
             var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
+            Logger.LogPublishEvent(approvalRequested);
+            
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
 
-        // Admin: potwierdź zamówienie
         public void Approve(ApproveOrder approveOrder)
         {
+            Logger.LogCommand(approveOrder);
+            
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
@@ -66,64 +71,63 @@ namespace Orders.Aggregate
             
             var requestApproved = new OrderApproved(approveOrder.OrderId);
             
+            Logger.LogPublishEvent(requestApproved);
+            
             PublishEvent(requestApproved);
             Apply(requestApproved);
         }
-        
-        // Admin: zgłoś, że opłacono
-        public void PayOrder(PayOrder command)
+
+        public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
-            if (OrderPayment.IsEnoughForFullPayment(command.Amount))
+            Logger.LogCommand(confirmOrderPayment);
+            
+            if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
             {
-                var orderFullyPaid = new OrderFullyPaid(command.Amount);
+                var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderFullyPaid);
+                
                 PublishEvent(orderFullyPaid);
                 Apply(orderFullyPaid);
             }
             else
             {
-                var orderPartiallyPaid = new OrderPartiallyPaid(command.Amount);
+                var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderPartiallyPaid);
+                
                 PublishEvent(orderPartiallyPaid);
                 Apply(orderPartiallyPaid);
             }
         }
         
-        // Auto: Zarezerwuj sprzęt
         public void ReserveEquipment(ReserveEquipment command)
         {
             if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
             {
-                var equipmentReserved = new EquipmentReserved();
+                var equipmentReserved = new EquipmentReserved(Id);
                 
                 PublishEvent(equipmentReserved);
                 Apply(equipmentReserved);
             }
 
-            // jeśli minął czas na wpłatę powiadom, że sprzętu już nie ma
-            
-            // jeśli nie minął, throw
+            // notify admin, that reservation failed
         }
         
-        // Admin: wydaj sprzęt
-        public void RentEquipment(RentEquipment command)
+        public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
         {
-            var equipmentRent = new EquipmentRent();
+            var equipmentRent = new EquipmentRent(Id);
             
             PublishEvent(equipmentRent);
             Apply(equipmentRent);
         }
         
-        // Admin: zgłoś zwrot sprzętu
-        public void ReturnEquipment(ReturnEquipment command)
+        public void ConfirmEquipmentReturned(ConfirmEquipmentReturned command)
         {
-            var equipmentReturned = new EquipmentReturned();
+            var equipmentReturned = new EquipmentReturned(Id);
             
             PublishEvent(equipmentReturned);
             Apply(equipmentReturned);
-        }
-
-        private void PublishEvent(IEvent eventToPublish)
-        {
-            Enqueue(eventToPublish);
         }
 
         #region Apply
@@ -135,10 +139,10 @@ namespace Orders.Aggregate
             ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
-            OrderPayment = new OrderPayment(orderSubmitted.OrderData.CalculateTotalPrice());
+            OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
+            Logger.LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -147,7 +151,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
+            Logger.LogApplyMethod(approvalRequested);
         }
         
         private void Apply(OrderApproved orderApproved)
@@ -156,7 +160,7 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(OrderApproved)}. Order:{Id}");
+            Logger.LogApplyMethod(orderApproved);
         }
         
         private void Apply(OrderFullyPaid orderFullyPaid)
@@ -166,17 +170,17 @@ namespace Orders.Aggregate
             OrderPayment.Pay(orderFullyPaid.Amount);
             Status = OrderStatus.Paid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Logger.LogApplyMethod(orderFullyPaid);
         }
         
-        private void Apply(OrderPartiallyPaid orderFullyPaid)
+        private void Apply(OrderPartiallyPaid orderPartiallyPaid)
         {
             Version++;
             
-            OrderPayment.Pay(orderFullyPaid.Amount);
+            OrderPayment.Pay(orderPartiallyPaid.Amount);
             Status = OrderStatus.PartiallyPaid;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Logger.LogApplyMethod(orderPartiallyPaid);
         }
         
         private void Apply(EquipmentReserved equipmentReserved)
@@ -215,7 +219,7 @@ namespace Orders.Aggregate
             
             foreach (var equipmentItem in OrderData.EquipmentItems)
             {
-                equipmentItem.Release();
+                equipmentItem.Return();
             }
             
             Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");

@@ -1,5 +1,5 @@
 ﻿using Core.Domain.Events;
-using Orders.Models.ValueObjects;
+using Core.Models;
 
 namespace Orders.Events
 {

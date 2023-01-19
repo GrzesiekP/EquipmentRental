@@ -1,17 +1,15 @@
 ﻿// ReSharper disable ConvertToPrimaryConstructor
 
-using System.Collections.Generic;
-using System.Linq;
 using Core.Domain.Models;
-using Orders.Aggregate.ValueObjects;
-using Orders.Models.ValueObjects;
+using Core.Models;
+using Equipment.Models.ValueObjects;
 
-namespace Orders.Models.Entities
+namespace Equipment.Models.Entities
 {
     public class EquipmentItem : Entity
     {
         public EquipmentType Type { get; }
-        public List<RentalPeriod> Reservations { get; private set; }
+        public List<RentalPeriod> Reservations { get; }
         public EquipmentStatus Status { get; private set; }
 
         public EquipmentItem(EquipmentType type)
@@ -30,7 +28,7 @@ namespace Orders.Models.Entities
             Status = EquipmentStatus.Rent;
         }
         
-        public void Release()
+        public void Return()
         {
             Status = EquipmentStatus.Available;
         }

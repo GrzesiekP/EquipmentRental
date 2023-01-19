@@ -53,7 +53,11 @@ namespace EquipmentRental.WebApi
             services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
             
             services.RegisterPersistenceModule(new PersistenceConfig(Configuration));
-            
+
+            services.AddCors(p => p.AddPolicy("equipment-rental-dev", b =>
+            b.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()
+            ));
+
             services
                 .AddAuthentication(opt =>
                 {
@@ -83,6 +87,8 @@ namespace EquipmentRental.WebApi
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "EquipmentRental.WebApi v1");
                 });
             }
+
+            app.UseCors("equipment-rental");
 
             app.UseHttpsRedirection();
 

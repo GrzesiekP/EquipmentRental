@@ -1,8 +1,8 @@
+using Core.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
-using Orders.Models.ValueObjects;
 
 namespace Orders.Tests.Aggregate.Paying;
 
@@ -17,14 +17,14 @@ public class WhenSubmittingPartialPayment : AggregateTestsBase<OrderPartiallyPai
     {
         base.Given();
 
-        var halfOfAmount = Order.OrderData.CalculateTotalPrice() / 2;
+        var halfOfAmount = Order.OrderData.TotalPrice / 2;
         _paymentAmount = halfOfAmount;
     }
 
     protected override void When()
     {
-        var payOrder = new PayOrder(OrderId, _paymentAmount);
-        Order.PayOrder(payOrder);
+        var payOrder = new ConfirmOrderPayment(OrderId, _paymentAmount);
+        Order.ConfirmPayment(payOrder);
         
         _orderPartiallyPaid = GetEvent();
     }

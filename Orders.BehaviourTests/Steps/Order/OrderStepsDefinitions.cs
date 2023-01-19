@@ -1,4 +1,6 @@
-﻿using Orders.Models.Entities;
+﻿using Core.Models;
+using Equipment.Models.Entities;
+using Equipment.Models.ValueObjects;
 using Orders.Models.ValueObjects;
 
 namespace Orders.BehaviourTests.Steps.Order;
@@ -15,6 +17,7 @@ public partial class OrderStepsDefinitions
     };
     private OrderData _orderData;
     private Aggregate.Order _order;
+    private Action _action;
     
     public OrderStepsDefinitions(ScenarioContext scenarioContext)
     {
