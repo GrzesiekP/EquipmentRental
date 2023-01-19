@@ -6,9 +6,11 @@ namespace Orders.Queries
 {
     public class GetOrders : IQuery<IEnumerable<OrderInfo>>
     {
-        public GetOrders()
+        public GetOrders(string clientEmail)
         {
-            
+            ClientEmail = clientEmail;
         }
+        
+        public string ClientEmail { get; private set; }
     }
 }

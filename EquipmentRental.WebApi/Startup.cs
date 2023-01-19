@@ -3,6 +3,7 @@ using Core.Domain.Aggregates;
 using Core.EventStore;
 using EventStore.Client;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,25 @@ namespace EquipmentRental.WebApi
             });
             services.AddScoped(typeof(IMartenEventStoreRepository<Order>), typeof(OrderRepository));
 
+            services.AddCors(p => p.AddPolicy("equipment-rental-dev", b =>
+            b.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()
+            ));
+
+            services
+                .AddAuthentication(opt =>
+                {
+                    opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(opt =>
+                {
+                    opt.LoginPath = "/account/google-login";
+                })
+                .AddGoogle(opt =>
+            {
+                opt.ClientId = Configuration["Google:ClientId"];
+                opt.ClientSecret = Configuration["Google:ClientSecret"];
+            });
+
             services.AddDbContext<EquipmentRentalDbContext>(o =>
                 o.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
         }
@@ -62,12 +82,20 @@ namespace EquipmentRental.WebApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "EquipmentRental.WebApi v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EquipmentRental.WebApi v1");
+                });
             }
+
+            app.UseCors("equipment-rental");
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

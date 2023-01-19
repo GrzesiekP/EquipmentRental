@@ -1,17 +1,23 @@
 ﻿using System;
+using System.Linq;
 using Core.Domain.Aggregates;
-using Core.Domain.Events;
+using Core.Logging;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
 using Orders.Events;
-using Orders.ValueObjects;
+using Orders.Models.Entities;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Aggregate
 {
     public class Order : Aggregate<Guid>, IAggregate
     {
+        private AggregateLogger<Order, Guid> Logger => new(Id);
+
         public OrderStatus Status { get; private set; }
+        public string ClientEmail { get; private set; }
         public OrderData OrderData { get; private set; }
+        public OrderPayment OrderPayment { get; private set; }
 
         // Required for event store
         // ReSharper disable once UnusedMember.Global
@@ -19,53 +25,109 @@ namespace Orders.Aggregate
         {
         }
 
-        public static Order Submit(Guid orderId, OrderData orderData)
+        public static Order Submit(Guid orderId, OrderData orderData, string clientEmail)
         {
-            var order = new Order(orderId, orderData);
+            var order = new Order(orderId, orderData, clientEmail);
             return order;
         }
 
-        private Order(Guid id, OrderData orderData)
+        private Order(Guid id, OrderData orderData, string clientEmail)
         {
-            var orderSubmitted = new OrderSubmitted(id, orderData);
+            var orderSubmitted = new OrderSubmitted(id, orderData, clientEmail);
             
             PublishEvent(orderSubmitted);
             Apply(orderSubmitted);
         }
 
-        public void RequestApproval(RequestApproval requestApproval)
+        public void RequestApproval(RequestOrderApproval requestOrderApproval)
         {
+            Logger.LogCommand(requestOrderApproval);
+            
             if (Status != OrderStatus.Submitted)
             {
                 throw new Exception(
-                    $"Cannot request for approval for OrderId:{requestApproval.OrderId}, " +
+                    $"Cannot request for approval for OrderId:{requestOrderApproval.OrderId}, " +
                     $"because it is in status {Status}");
             }
             
-            var approvalRequested = new ApprovalRequested(requestApproval.OrderId);
+            var approvalRequested = new ApprovalRequested(requestOrderApproval.OrderId);
 
+            Logger.LogPublishEvent(approvalRequested);
+            
             PublishEvent(approvalRequested);
             Apply(approvalRequested);
         }
 
-        public void ApproveRequest(ApproveRequest approveRequest)
+        public void Approve(ApproveOrder approveOrder)
         {
+            Logger.LogCommand(approveOrder);
+            
             if (Status != OrderStatus.WaitingForApproval)
             {
                 throw new Exception(
-                    $"Cannot approved order OrderId:{approveRequest.OrderId}, " +
+                    $"Cannot approve order OrderId:{approveOrder.OrderId}, " +
                     $"because it is in status {Status}");
             }
             
-            var requestApproved = new RequestApproved(approveRequest.OrderId);
+            var requestApproved = new OrderApproved(approveOrder.OrderId);
+            
+            Logger.LogPublishEvent(requestApproved);
             
             PublishEvent(requestApproved);
             Apply(requestApproved);
         }
 
-        private void PublishEvent(IEvent eventToPublish)
+        public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
-            Enqueue(eventToPublish);
+            Logger.LogCommand(confirmOrderPayment);
+            
+            if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
+            {
+                var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderFullyPaid);
+                
+                PublishEvent(orderFullyPaid);
+                Apply(orderFullyPaid);
+            }
+            else
+            {
+                var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
+                
+                Logger.LogPublishEvent(orderPartiallyPaid);
+                
+                PublishEvent(orderPartiallyPaid);
+                Apply(orderPartiallyPaid);
+            }
+        }
+        
+        public void ReserveEquipment(ReserveEquipment command)
+        {
+            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
+            {
+                var equipmentReserved = new EquipmentReserved(Id);
+                
+                PublishEvent(equipmentReserved);
+                Apply(equipmentReserved);
+            }
+
+            // notify admin, that reservation failed
+        }
+        
+        public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
+        {
+            var equipmentRent = new EquipmentRent(Id);
+            
+            PublishEvent(equipmentRent);
+            Apply(equipmentRent);
+        }
+        
+        public void ConfirmEquipmentReturned(ConfirmEquipmentReturned command)
+        {
+            var equipmentReturned = new EquipmentReturned(Id);
+            
+            PublishEvent(equipmentReturned);
+            Apply(equipmentReturned);
         }
 
         #region Apply
@@ -74,11 +136,13 @@ namespace Orders.Aggregate
             Version++;
 
             Id = orderSubmitted.OrderId;
+            ClientEmail = orderSubmitted.ClientEmail;
             Status = OrderStatus.Submitted;
             OrderData = orderSubmitted.OrderData;
+            OrderPayment = new OrderPayment(OrderData.TotalPrice);
             
             // First time aggregate is not saved, so the 2nd time is the correct apply.
-            Console.WriteLine($"{nameof(OrderSubmitted)}. Order:{Id}");
+            Logger.LogApplyMethod(orderSubmitted);
         }
         
         private void Apply(ApprovalRequested approvalRequested)
@@ -87,17 +151,80 @@ namespace Orders.Aggregate
             
             Status = OrderStatus.WaitingForApproval;
             
-            Console.WriteLine($"{nameof(ApprovalRequested)}. Order:{Id}");
+            Logger.LogApplyMethod(approvalRequested);
         }
         
-        private void Apply(RequestApproved requestApproved)
+        private void Apply(OrderApproved orderApproved)
         {
             Version++;
             
             Status = OrderStatus.Approved;
             
-            Console.WriteLine($"{nameof(RequestApproved)}. Order:{Id}");
+            Logger.LogApplyMethod(orderApproved);
         }
+        
+        private void Apply(OrderFullyPaid orderFullyPaid)
+        {
+            Version++;
+            
+            OrderPayment.Pay(orderFullyPaid.Amount);
+            Status = OrderStatus.Paid;
+            
+            Logger.LogApplyMethod(orderFullyPaid);
+        }
+        
+        private void Apply(OrderPartiallyPaid orderPartiallyPaid)
+        {
+            Version++;
+            
+            OrderPayment.Pay(orderPartiallyPaid.Amount);
+            Status = OrderStatus.PartiallyPaid;
+            
+            Logger.LogApplyMethod(orderPartiallyPaid);
+        }
+        
+        private void Apply(EquipmentReserved equipmentReserved)
+        {
+            Version++;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.ReserveFor(OrderData.RentalPeriod);
+            }
+
+            Status = OrderStatus.Reserved;
+            
+            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentRent equipmentRent)
+        {
+            Version++;
+
+            Status = OrderStatus.InRealisation;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Rent();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
+        private void Apply(EquipmentReturned equipmentReturned)
+        {
+            Version++;
+
+            Status = OrderStatus.Completed;
+            
+            foreach (var equipmentItem in OrderData.EquipmentItems)
+            {
+                equipmentItem.Return();
+            }
+            
+            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+        }
+        
         #endregion
     }
 }

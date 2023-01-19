@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Mail;
 
 namespace Core.Extensions
 {
@@ -22,11 +21,17 @@ namespace Core.Extensions
             return list;
         }
 
-        public static Guid AssertIsNotEmpty(this Guid guid, string parameterName)
+        public static string AssertIsValidEmail(this string email, string parameterName)
         {
-            return guid != Guid.Empty ?
-                guid :
-                throw new ArgumentNullException(parameterName);
+            try
+            {
+                var result = new MailAddress(email);
+                return result.Address;
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException(e.Message, parameterName);
+            }
         }
     }
 }

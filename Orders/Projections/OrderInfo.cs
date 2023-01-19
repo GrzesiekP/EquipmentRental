@@ -2,7 +2,7 @@
 using Core.Domain.Projections;
 using Orders.Aggregate.ValueObjects;
 using Orders.Events;
-using Orders.ValueObjects;
+using Orders.Models.ValueObjects;
 
 namespace Orders.Projections
 {
@@ -11,6 +11,7 @@ namespace Orders.Projections
         public Guid Id { get; set; }
         public OrderStatus Status { get; set; }
         public OrderData OrderData { get; set; }
+        public string ClientEmail { get; set; }
         
         public void When(object e)
         {
@@ -22,7 +23,7 @@ namespace Orders.Projections
                 case ApprovalRequested approvalRequested:
                     Apply(approvalRequested);
                     return;
-                case RequestApproved requestApproved:
+                case OrderApproved requestApproved:
                     Apply(requestApproved);
                     return;
             }
@@ -33,16 +34,17 @@ namespace Orders.Projections
             Id = e.OrderId;
             Status = OrderStatus.Submitted;
             OrderData = e.OrderData;
+            ClientEmail = e.ClientEmail;
         }
         
         public void Apply(ApprovalRequested e)
         {
-            Status = OrderStatus.Submitted;
+            Status = OrderStatus.WaitingForApproval;
         }
         
-        public void Apply(RequestApproved e)
+        public void Apply(OrderApproved e)
         {
-            Status = OrderStatus.Submitted;
+            Status = OrderStatus.Approved;
         }
     }
 }

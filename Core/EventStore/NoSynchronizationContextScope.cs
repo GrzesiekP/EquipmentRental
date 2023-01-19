@@ -13,7 +13,7 @@ namespace Core.EventStore
             return new Disposable(context);
         }
 
-        public struct Disposable : IDisposable
+        public readonly struct Disposable : IDisposable
         {
             private readonly SynchronizationContext? _synchronizationContext;
 
