@@ -8,7 +8,7 @@ namespace Equipment.Models.Entities
     public class EquipmentItem : Entity
     {
         public EquipmentType Type { get; }
-        public List<RentalPeriod> Reservations { get; private set; }
+        public List<RentalPeriod> Reservations { get; }
         public EquipmentStatus Status { get; private set; }
 
         public EquipmentItem(EquipmentType type)
@@ -27,7 +27,7 @@ namespace Equipment.Models.Entities
             Status = EquipmentStatus.Rent;
         }
         
-        public void Release()
+        public void Return()
         {
             Status = EquipmentStatus.Available;
         }
