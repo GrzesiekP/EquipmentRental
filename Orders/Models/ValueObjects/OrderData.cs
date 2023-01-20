@@ -17,12 +17,8 @@ namespace Orders.Models.ValueObjects
         public List<EquipmentItem> EquipmentItems { get; }
         public RentalPeriod RentalPeriod { get; }
         
-        public Money TotalPrice =>
-             new Money(EquipmentItems.Sum(i => i.Type.RentalPrice.Amount) * RentalDays());
-        
-        public int RentalDays()
-        {
-            return (int)Math.Ceiling(RentalPeriod.Value.TotalDays);
-        }
+        public Money TotalPrice => new(EquipmentItems.Sum(i => i.Type.RentalPrice.Amount) * RentalDays);
+
+        private int RentalDays => (int)Math.Ceiling(RentalPeriod.Value.TotalDays);
     }
 }
