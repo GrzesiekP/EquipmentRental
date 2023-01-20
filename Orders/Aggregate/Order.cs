@@ -104,15 +104,17 @@ namespace Orders.Aggregate
         {
             if (!OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
             {
-                throw new AggregateException($"Reservation failed. Equipment not available.");
+                var unavailableEquipmentIds = OrderData.EquipmentItems
+                    .Where(e => !e.IsAvailableFor(OrderData.RentalPeriod))
+                    .Select(e => e.Identity);
+                throw new AggregateException(
+                    $"Reservation failed. Following equipment is not available: {string.Join(',', unavailableEquipmentIds)}");
             }
             
-            var equipmentReserved = new EquipmentReserved(Id);
+            var equipmentReserved = new EquipmentReserved(Id, OrderData.RentalPeriod);
                 
             PublishEvent(equipmentReserved);
             Apply(equipmentReserved);
-
-            throw new AggregateException($"Reservation failed. Equipment not available.");
         }
         
         public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
@@ -194,12 +196,12 @@ namespace Orders.Aggregate
             
             foreach (var equipmentItem in OrderData.EquipmentItems)
             {
-                equipmentItem.ReserveFor(OrderData.RentalPeriod);
+                equipmentItem.ReserveFor(equipmentReserved.Period);
             }
 
             Status = OrderStatus.Reserved;
             
-            Console.WriteLine($"{nameof(EquipmentReserved)}. Order:{Id}");
+            Logger.LogApplyMethod(equipmentReserved);
         }
         
         private void Apply(EquipmentRent equipmentRent)
@@ -213,7 +215,7 @@ namespace Orders.Aggregate
                 equipmentItem.Rent();
             }
             
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+            Logger.LogApplyMethod(equipmentRent);
         }
         
         private void Apply(EquipmentReturned equipmentReturned)
@@ -227,7 +229,7 @@ namespace Orders.Aggregate
                 equipmentItem.Return();
             }
             
-            Console.WriteLine($"{nameof(EquipmentRent)}. Order:{Id}");
+            Logger.LogApplyMethod(equipmentReturned);
         }
         
         #endregion

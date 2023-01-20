@@ -4,7 +4,7 @@ namespace Core.Domain.Models
 {
     public class Entity
     {
-        protected Guid Identity { get; }
+        public Guid Identity { get; }
 
         protected Entity()
         {

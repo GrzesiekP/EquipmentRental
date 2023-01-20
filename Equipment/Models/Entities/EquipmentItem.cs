@@ -9,7 +9,7 @@ namespace Equipment.Models.Entities
     public class EquipmentItem : Entity
     {
         public EquipmentType Type { get; }
-        public List<RentalPeriod> Reservations { get; }
+        private List<RentalPeriod> Reservations { get; }
         public EquipmentStatus Status { get; private set; }
 
         public EquipmentItem(EquipmentType type)
