@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Core.Domain.Aggregates;
+using Core.Domain.Events;
 using Core.Logging;
 using Orders.Aggregate.ValueObjects;
 using Orders.Commands;
@@ -19,8 +20,7 @@ namespace Orders.Aggregate
         public OrderData OrderData { get; private set; }
         public OrderPayment OrderPayment { get; private set; }
 
-        // Required for event store
-        // ReSharper disable once UnusedMember.Global
+        // ReSharper disable once UnusedMember.Global - Required for event store
         public Order()
         {
         }
@@ -80,43 +80,46 @@ namespace Orders.Aggregate
         public void ConfirmPayment(ConfirmOrderPayment confirmOrderPayment)
         {
             Logger.LogCommand(confirmOrderPayment);
-            
+
+            IEvent paymentEvent;
+            Action<IEvent> applyPaymentEvent;
             if (OrderPayment.IsEnoughForFullPayment(confirmOrderPayment.Amount))
             {
-                var orderFullyPaid = new OrderFullyPaid(confirmOrderPayment.Amount);
-                
-                Logger.LogPublishEvent(orderFullyPaid);
-                
-                PublishEvent(orderFullyPaid);
-                Apply(orderFullyPaid);
+                paymentEvent = new OrderFullyPaid(confirmOrderPayment.Amount);
+                applyPaymentEvent = e => Apply((OrderFullyPaid)e);
             }
             else
             {
-                var orderPartiallyPaid = new OrderPartiallyPaid(confirmOrderPayment.Amount);
-                
-                Logger.LogPublishEvent(orderPartiallyPaid);
-                
-                PublishEvent(orderPartiallyPaid);
-                Apply(orderPartiallyPaid);
+                paymentEvent = new OrderPartiallyPaid(confirmOrderPayment.Amount);
+                applyPaymentEvent = e => Apply((OrderPartiallyPaid)e);
             }
+            
+            Logger.LogPublishEvent(paymentEvent);
+                
+            PublishEvent(paymentEvent);
+            applyPaymentEvent(paymentEvent);
         }
         
         public void ReserveEquipment(ReserveEquipment command)
         {
-            if (OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
+            if (!OrderData.EquipmentItems.All(e => e.IsAvailableFor(OrderData.RentalPeriod)))
             {
-                var equipmentReserved = new EquipmentReserved(Id);
-                
-                PublishEvent(equipmentReserved);
-                Apply(equipmentReserved);
+                throw new AggregateException($"Reservation failed. Equipment not available.");
             }
+            
+            var equipmentReserved = new EquipmentReserved(Id);
+                
+            PublishEvent(equipmentReserved);
+            Apply(equipmentReserved);
 
-            // notify admin, that reservation failed
+            throw new AggregateException($"Reservation failed. Equipment not available.");
         }
         
         public void ConfirmEquipmentRent(ConfirmEquipmentRent command)
         {
             var equipmentRent = new EquipmentRent(Id);
+            
+            Logger.LogPublishEvent(equipmentRent);
             
             PublishEvent(equipmentRent);
             Apply(equipmentRent);
@@ -125,6 +128,8 @@ namespace Orders.Aggregate
         public void ConfirmEquipmentReturned(ConfirmEquipmentReturned command)
         {
             var equipmentReturned = new EquipmentReturned(Id);
+            
+            Logger.LogPublishEvent(equipmentReturned);
             
             PublishEvent(equipmentReturned);
             Apply(equipmentReturned);
