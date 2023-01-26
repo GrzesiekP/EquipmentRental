@@ -6,3 +6,4 @@ riderModule.iml
 *.user
 EquipmentRental.sln.DotSettings.user
 .vs/
+/EquipmentRental.WebApi/localSettings.json
