@@ -85,7 +85,7 @@ namespace EquipmentRental.WebApi
                 });
             }
 
-            app.UseCors("equipment-rental");
+            app.UseCors("equipment-rental-dev");
 
             app.UseHttpsRedirection();
 
